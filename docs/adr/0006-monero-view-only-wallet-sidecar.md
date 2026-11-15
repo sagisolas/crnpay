@@ -1,0 +1,3 @@
+# Monero is watched through a view-only monero-wallet-rpc sidecar
+
+Monero hides recipients, so incoming Payments can only be found by scanning blocks with the Streamer's private view key. The official `monero-wallet-rpc` runs as a separate container holding a view-only wallet, reads blocks from a public remote node, and the app talks to it over JSON-RPC to create a subaddress per Donation and list incoming transfers. `monero-ts` (a WASM port running inside the app) was rejected as a heavy, less battle-tested dependency doing block scanning in our process; light-wallet servers were rejected because they require handing the view key to a third party. A public remote node instead of our own `monerod` (about 100 GB) carries the same false-Payment risk accepted in ADR-0003.

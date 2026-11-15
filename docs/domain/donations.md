@@ -4,14 +4,22 @@
 
 - Donors choose from a fixed list of Tokens set by the Streamer. Only the exact asset on the exact network of a listed Token counts.
 - Amounts are entered and shown in the Token's own units. There is no fiat conversion.
-- Each Token has a minimum amount, and smaller Donations are refused. The number of Donations one Donor can create in a short time is limited.
-- A Donation carries a Token, an amount, a message of at most 300 characters and an optional Nickname.
+- Each Token has a minimum amount, and smaller Donations are refused.
+- A Donation carries a Token, an amount, a message and an optional Nickname. The message is 1–300 characters and the Nickname at most 32, both plain text, trimmed, with control characters removed.
+- One Donor can create at most 5 Donations per 10 minutes, counted per IP address (ADR-0005).
+
+## Donation page
+
+- The page is available in English and Russian. It starts in the browser's preferred language, falls back to English, and offers a switch that is remembered.
+- The page heading shows the Streamer's name.
 
 ## Payment instructions
 
-After submitting, the Donor sees the address as a QR code with a copy button and the exact amount with a copy button. The QR code carries the amount only where wallets read it reliably (Bitcoin, Solana); elsewhere it carries the address alone.
+After submitting, the Donor sees the address as a QR code with a copy button and the exact amount with a copy button. The QR code carries the amount where wallets read it reliably (Bitcoin, Monero); elsewhere it carries the address alone.
 
-Depending on the Token's network, either the address is unique to the Donation, or the address is shared and the amount is made unique by a small tail (25.000137 instead of 25). See ADR-0002.
+Depending on the Token's network, either the address is unique to the Donation (Bitcoin, Monero), or the address is shared and the amount is made unique by a small tail (EVM, Tron). See ADR-0002.
+
+The tail is 1 to 9999 steps of a per-Token step size, chosen so the tail is worth at most cents. When every tail of a Token is held by another Donation, that Token refuses new Donations with "try again later".
 
 ## Lifecycle
 
@@ -19,9 +27,22 @@ Depending on the Token's network, either the address is unique to the Donation, 
 2. **Payment seen**: a matching transfer is on chain but not yet final.
 3. **Confirmed**: the Payment has reached the confirmation count set for its network.
 
-A Donation still waiting after 60 minutes expires, but a Payment that arrives within the following 24 hours still matches it and still leads to an Alert.
+A Donation still waiting after 60 minutes is **Expired**, but a Payment that arrives within the following 24 hours still matches it and still leads to an Alert.
+
+The payment screen shows each state to the Donor:
+
+- Waiting: the Payment instructions and a waiting indicator.
+- Payment seen: "Payment seen, waiting for confirmation".
+- Confirmed: "Thank you, your Donation is confirmed".
+- Expired: "This Donation expired. If you already paid, it will still be matched for 24 hours".
+
+The payment screen is not saved anywhere; closing it loses it.
 
 ## Matching rules
 
 - **Shared address, unique amount**: only a transfer of exactly the expected amount matches. Anything more or less matches no Donation: the money stays with the Streamer and no Alert is shown.
 - **Unique address**: the first Payment of at least the Token's minimum confirms the Donation, and its Alert shows the amount that actually arrived. Smaller transfers and any later transfers to that address lead to no Alert.
+
+## Streamer's record
+
+There is no Donation history page. Each Confirmed Donation is written to the service log with its Token, amount, Nickname and message.

@@ -6,6 +6,7 @@
 ## Workflow
 
 - Run tests after making non cosmetical changes
+- Run formatting before commit
 
 ## Docs
 

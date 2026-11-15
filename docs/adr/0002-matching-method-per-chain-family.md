@@ -1,6 +1,9 @@
 # Matching method is chosen per chain family
 
-A Payment is matched to its Donation in one of two ways, depending on the chain family. UTXO chains (Bitcoin and similar) give each Donation its own address, derived from the Streamer's extended public key; an address from an expired, never-paid Donation is reused so the Streamer's wallet never hits its gap limit. Account-based chains (EVM, Solana, Tron) use one Streamer address per network and give each Donation a unique exact amount, because per-Donation addresses there would scatter tokens across addresses that each need gas to sweep.
+A Payment is matched to its Donation in one of two ways, depending on the chain family.
+
+- **Unique address**: Bitcoin and Monero give each Donation its own address, derived from the Streamer's extended public key (Bitcoin) or created as a subaddress by a view-only wallet (Monero). An address from an expired, never-paid Donation is reused so the Streamer's wallet never hits its address lookahead limit.
+- **Unique amount**: account-based chains (EVM, Tron) use one Streamer address per network and give each Donation a unique exact amount, because per-Donation addresses there would scatter tokens across addresses that each need gas to sweep.
 
 ## Considered options
 
