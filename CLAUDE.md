@@ -1,3 +1,17 @@
+## Implementation
+
+- Code requires extra safety as it works with payments
+- Add logging to significant events in code using industry standard libs
+
+## Workflow
+
+- Run tests after making non cosmetical changes
+
+## Docs
+
+- Technical decisions go in docs/adr
+- Domain decisions go in docs/domain
+
 ## Agent skills
 
 ### Issue tracker
@@ -10,4 +24,4 @@ Default five-role vocabulary (needs-triage, needs-info, ready-for-agent, ready-f
 
 ### Domain docs
 
-Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single-context: one `GLOSSARY.md`, `docs/domain/` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.

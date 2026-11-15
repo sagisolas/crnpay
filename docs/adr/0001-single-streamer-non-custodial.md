@@ -1,0 +1,3 @@
+# Single Streamer, non-custodial, watch-only
+
+Each deployment serves exactly one Streamer, and the service never holds a private key: it knows only the Streamer's public addresses and extended public keys, and detects Payments by watching the chain. Donors pay straight into the Streamer's own wallets, so a compromised server cannot spend anything. Multi-streamer hosting, third-party payment gateways (NOWPayments, CoinPayments) and BTCPay Server were rejected: the first multiplies the security surface, the gateways put a company with fees, KYC and freeze risk in the money path, and BTCPay is weak on EVM and Solana tokens.
