@@ -30,8 +30,7 @@ export default defineConfig(
         "error",
         { selector: "CallExpression[callee.name='Number']", ...amountSafety },
         {
-          selector:
-            "MemberExpression[object.name='Number'][property.name=/^parse(Float|Int)$/]",
+          selector: "MemberExpression[object.name='Number'][property.name=/^parse(Float|Int)$/]",
           ...amountSafety,
         },
       ],

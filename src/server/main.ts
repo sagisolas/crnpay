@@ -12,7 +12,10 @@ async function main(): Promise<void> {
   const app = createApp(logger);
 
   const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
-    logger.info({ port: info.port, tokens: config.tokens.map((token) => token.id) }, "server started");
+    logger.info(
+      { port: info.port, tokens: config.tokens.map((token) => token.id) },
+      "server started",
+    );
   });
 
   const shutdown = (signal: NodeJS.Signals): void => {

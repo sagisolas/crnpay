@@ -34,7 +34,9 @@ describe("parseConfig", () => {
   });
 
   it("rejects duplicate token ids", () => {
-    expect(() => parseConfig({ tokens: [usdtOnTron, usdtOnTron] })).toThrow("token ids must be unique");
+    expect(() => parseConfig({ tokens: [usdtOnTron, usdtOnTron] })).toThrow(
+      "token ids must be unique",
+    );
   });
 
   it("rejects a minimum with more decimals than the token", () => {

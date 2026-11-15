@@ -12,7 +12,11 @@ describe("createLogger", () => {
       },
     });
     const logger = createLogger("info", destination);
-    logger.info({ ALERT_KEY: "secret-1", env: { ALERT_KEY: "secret-2" }, token: { xpub: "secret-3" } });
+    logger.info({
+      ALERT_KEY: "secret-1",
+      env: { ALERT_KEY: "secret-2" },
+      token: { xpub: "secret-3" },
+    });
     const output = lines.join("");
     expect(output).not.toMatch(/secret-\d/);
     expect(output).toContain("[redacted]");

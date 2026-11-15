@@ -14,16 +14,16 @@ Scaffold only. The server validates its environment and config and serves `/heal
 
 ## Tech stack
 
-| Concern | Choice |
-|---|---|
-| Language | TypeScript (strict) on Node.js 26 |
-| HTTP and HTML | [Hono](https://hono.dev) with server-rendered JSX, Server-Sent Events for Alerts |
-| Validation | [zod](https://zod.dev) for env, config, request bodies and provider responses |
-| Storage | SQLite through better-sqlite3 with plain SQL (planned) |
-| Logging | [pino](https://getpino.io), JSON lines, secrets redacted, query strings never logged |
-| Browser scripts | Plain TypeScript bundled by esbuild |
-| Tests and lint | Vitest, ESLint with typescript-eslint `strict-type-checked` |
-| Deployment | One Docker container behind Caddy (automatic HTTPS) |
+| Concern         | Choice                                                                               |
+| --------------- | ------------------------------------------------------------------------------------ |
+| Language        | TypeScript (strict) on Node.js 26                                                    |
+| HTTP and HTML   | [Hono](https://hono.dev) with server-rendered JSX, Server-Sent Events for Alerts     |
+| Validation      | [zod](https://zod.dev) for env, config, request bodies and provider responses        |
+| Storage         | SQLite through better-sqlite3 with plain SQL (planned)                               |
+| Logging         | [pino](https://getpino.io), JSON lines, secrets redacted, query strings never logged |
+| Browser scripts | Plain TypeScript bundled by esbuild                                                  |
+| Tests and lint  | Vitest, ESLint with typescript-eslint `strict-type-checked`                          |
+| Deployment      | One Docker container behind Caddy (automatic HTTPS)                                  |
 
 Token amounts are always `bigint` in the Token's base units. Decimal strings are converted with `parseAmount` in `src/server/amount.ts`, and lint rejects `parseFloat`, `parseInt` and `Number()`.
 
@@ -43,14 +43,15 @@ Set `ALERT_KEY` in `.env` to the output of `openssl rand -hex 32`, then:
 pnpm dev
 ```
 
-| Script | What it does |
-|---|---|
-| `pnpm dev` | Runs the server with reload and pretty logs |
-| `pnpm build` | Compiles the server to `dist/server` and bundles browser scripts to `dist/public` |
-| `pnpm start` | Runs the compiled server |
-| `pnpm test` | Runs the tests (colocated as `*.test.ts`) |
-| `pnpm lint` | Runs ESLint |
-| `pnpm typecheck` | Type-checks server and browser code |
+| Script           | What it does                                                                      |
+| ---------------- | --------------------------------------------------------------------------------- |
+| `pnpm dev`       | Runs the server with reload and pretty logs                                       |
+| `pnpm build`     | Compiles the server to `dist/server` and bundles browser scripts to `dist/public` |
+| `pnpm start`     | Runs the compiled server                                                          |
+| `pnpm test`      | Runs the tests (colocated as `*.test.ts`)                                         |
+| `pnpm lint`      | Runs ESLint                                                                       |
+| `pnpm typecheck` | Type-checks server and browser code                                               |
+| `pnpm format`    | Formats all files with Prettier (run before committing)                           |
 
 ## Configuration
 
