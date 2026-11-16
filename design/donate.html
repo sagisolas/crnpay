@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Donate to Matvey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #e9ecef;
+        --paper-raised: #f6f7f9;
+        --ink: #16213e;
+        --ink-soft: #4a5573;
+        --ink-faint: #8a93ab;
+        --line: #c9cfda;
+        --signal: #e0218a;
+        --signal-deep: #b0136b;
+        --caution: #b86e00;
+        --caution-bg: #fbf0dc;
+        --final: #1e7f55;
+        --final-bg: #e1f2e9;
+        --error: #c2263a;
+
+        --display: "Unbounded", system-ui, sans-serif;
+        --text: "Golos Text", system-ui, sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
+
+        --step--1: 0.8125rem;
+        --step-0: 1rem;
+        --step-1: 1.125rem;
+        --step-2: 1.5rem;
+        --step-3: 2.25rem;
+        --step-4: clamp(2.25rem, 5vw, 3.5rem);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font: 400 var(--step-0)/1.5 var(--text);
+      }
+      button,
+      input,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 3px solid var(--signal);
+        outline-offset: 2px;
+      }
+
+      .page {
+        max-width: 1180px;
+        min-height: 100dvh;
+        margin: 0 auto;
+        padding: 16px;
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+      @media (min-width: 720px) {
+        .page {
+          padding: 28px 32px;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+          gap: 24px 48px;
+          align-content: center;
+          align-items: center;
+        }
+      }
+
+      .topbar {
+        grid-column: 1 / -1;
+        order: -2;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .streamer h1 {
+        margin: 0;
+        font: 800 var(--step-3)/1 var(--display);
+        letter-spacing: -0.02em;
+      }
+      .streamer p {
+        margin: 6px 0 0;
+        font-size: var(--step--1);
+        color: var(--ink-soft);
+      }
+      .lang {
+        display: inline-flex;
+        border: 1.5px solid var(--ink);
+        border-radius: 999px;
+        padding: 2px;
+        flex-shrink: 0;
+      }
+      .lang button {
+        border: 0;
+        background: none;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: var(--step--1);
+        cursor: pointer;
+      }
+      .lang button[aria-pressed="true"] {
+        background: var(--ink);
+        color: var(--paper);
+      }
+
+      /* Preview */
+      .stage {
+        order: -1;
+      }
+      @media (min-width: 720px) {
+        .stage {
+          order: 0;
+        }
+      }
+      .stage-caption {
+        position: absolute;
+        top: 3.5cqw;
+        left: 3.5cqw;
+        right: 14cqw;
+        margin: 0;
+        font-size: max(11px, 1.9cqw);
+        line-height: 1.3;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      @media (max-width: 719px) {
+        .cta-note,
+        .streamer p {
+          display: none;
+        }
+        .topbar {
+          align-items: center;
+        }
+        .screen {
+          width: min(100%, 28dvh * 16 / 9);
+        }
+        .chips {
+          gap: 6px;
+        }
+        .chip span {
+          padding: 5px 9px;
+          font-size: var(--step--1);
+          gap: 4px;
+        }
+        .chip img {
+          width: 16px;
+          height: 16px;
+        }
+        .field {
+          margin-bottom: 10px;
+        }
+        .page {
+          gap: 12px;
+        }
+        textarea.input {
+          height: 60px;
+        }
+        .banner {
+          padding: 6px 10px;
+        }
+        .pay-net {
+          margin-bottom: 10px;
+        }
+        .status {
+          margin-top: 12px;
+          padding-top: 10px;
+        }
+        .link-btn {
+          margin-top: 8px;
+        }
+      }
+      .screen {
+        position: relative;
+        margin: 0 auto;
+        aspect-ratio: 16 / 9;
+        border-radius: 14px;
+        overflow: hidden;
+        background:
+          radial-gradient(120% 90% at 80% 20%, #3b4a7a 0%, transparent 60%),
+          radial-gradient(90% 80% at 10% 100%, #24345e 0%, transparent 70%), #1a2547;
+        container-type: inline-size;
+      }
+      .screen::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          90deg,
+          transparent 0 46px,
+          rgba(255, 255, 255, 0.025) 46px 47px
+        );
+      }
+      .screen-live {
+        position: absolute;
+        top: 3.5cqw;
+        right: 3.5cqw;
+        font: 700 1.6cqw/1 var(--display);
+        color: #fff;
+        background: var(--error);
+        padding: 0.8cqw 1.4cqw;
+        border-radius: 0.6cqw;
+      }
+
+      /* Alert (shared with alert.html) */
+      .alert {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 10cqw;
+        text-align: center;
+        color: #fff;
+      }
+      .alert-head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: baseline;
+        gap: 0 1.6cqw;
+        -webkit-text-stroke: 0.7cqw rgba(10, 14, 30, 0.9);
+        paint-order: stroke fill;
+      }
+      .alert-nick {
+        color: #ffd23f;
+        font: 800 4.2cqw/1.15 var(--display);
+        overflow-wrap: anywhere;
+        min-width: 0;
+      }
+      .alert-dash {
+        font: 800 4.2cqw/1.15 var(--display);
+      }
+      .alert-amount {
+        font: 800 4.2cqw/1.15 var(--display);
+        white-space: nowrap;
+        letter-spacing: -0.01em;
+      }
+      .alert-amount small {
+        font-size: 0.6em;
+        margin-left: 0.3em;
+      }
+      .alert-msg {
+        margin-top: 1.4cqw;
+        max-width: 72cqw;
+        font: 600 2.5cqw/1.35 var(--text);
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+        text-shadow:
+          0 0.2cqw 0 rgba(10, 14, 30, 0.9),
+          0 0 1.2cqw rgba(10, 14, 30, 0.8);
+      }
+      .alert-msg.is-empty {
+        color: rgba(255, 255, 255, 0.6);
+        font-style: italic;
+      }
+
+      /* Form */
+      .panel {
+        min-width: 0;
+      }
+      .field {
+        margin: 0 0 14px;
+        border: 0;
+        padding: 0;
+        min-width: 0;
+      }
+      .field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+        padding: 0;
+      }
+      .hint {
+        color: var(--ink-soft);
+        font-size: var(--step--1);
+        margin-top: 4px;
+      }
+      .hint-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .count {
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .count.is-over {
+        color: var(--error);
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chip input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .chip img {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        align-self: center;
+        margin-right: 2px;
+      }
+      .chip span {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 6px 12px;
+        border: 1.5px solid var(--line);
+        border-radius: 10px;
+        background: var(--paper-raised);
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .chip span em {
+        font-style: normal;
+        font-weight: 400;
+        color: var(--ink-soft);
+        font-size: var(--step--1);
+      }
+      .chip:hover span {
+        border-color: var(--ink-soft);
+      }
+      .chip input:checked + span {
+        border-color: var(--ink);
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .chip input:checked + span em {
+        color: #b9c1d8;
+      }
+      .chip input:focus-visible + span {
+        outline: 3px solid var(--signal);
+        outline-offset: 2px;
+      }
+
+      .input {
+        width: 100%;
+        border: 1.5px solid var(--line);
+        background: var(--paper-raised);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+      .input:hover {
+        border-color: var(--ink-soft);
+      }
+      .input:focus-visible {
+        outline: none;
+        border-color: var(--ink);
+        box-shadow: 0 0 0 3px rgba(224, 33, 138, 0.35);
+      }
+      .input[aria-invalid="true"] {
+        border-color: var(--error);
+      }
+      textarea.input {
+        resize: none;
+        height: 76px;
+        line-height: 1.4;
+      }
+      .amount-wrap {
+        position: relative;
+      }
+      .amount-wrap .input {
+        font: 500 var(--step-0)/1.5 var(--mono);
+        padding-right: 64px;
+      }
+      .amount-wrap .unit {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font: 700 var(--step--1)/1 var(--display);
+        color: var(--ink-soft);
+      }
+      .error {
+        color: var(--error);
+        font-size: var(--step--1);
+        font-weight: 500;
+        margin-top: 6px;
+      }
+      .error:empty {
+        display: none;
+      }
+      .field:has(.error:not(:empty)) .hint {
+        display: none;
+      }
+
+      .cta {
+        width: 100%;
+        border: 0;
+        background: var(--signal);
+        color: #fff;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font: 700 var(--step-0)/1.2 var(--display);
+        cursor: pointer;
+      }
+      .cta:hover {
+        background: var(--signal-deep);
+      }
+      .cta-note {
+        margin: 8px 0 0;
+        font-size: var(--step--1);
+        color: var(--ink-soft);
+      }
+
+      .banner {
+        border-left: 4px solid var(--error);
+        background: #f9e3e6;
+        padding: 12px 14px;
+        border-radius: 0 10px 10px 0;
+        font-size: var(--step--1);
+        min-height: 51px;
+      }
+      .banner[hidden] {
+        display: none;
+      }
+
+      /* Payment instructions */
+      .pay h2 {
+        margin: 0 0 4px;
+        font: 700 var(--step-1)/1.2 var(--display);
+      }
+      .pay-net {
+        margin: 0 0 16px;
+        color: var(--ink-soft);
+      }
+      .pay-net strong {
+        color: var(--ink);
+      }
+      .pay-grid {
+        display: grid;
+        grid-template-columns: 132px 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+      @media (min-width: 560px) {
+        .pay-grid {
+          grid-template-columns: 160px 1fr;
+          gap: 24px;
+        }
+      }
+      .qr {
+        width: 100%;
+        aspect-ratio: 1;
+        background: #fff;
+        padding: 10px;
+        border-radius: 12px;
+        border: 1.5px solid var(--line);
+      }
+      .qr canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        image-rendering: pixelated;
+      }
+      .qr-note {
+        font-size: var(--step--1);
+        line-height: 1.35;
+        color: var(--ink-soft);
+        margin-top: 6px;
+      }
+      .copy-row {
+        margin-bottom: 14px;
+      }
+      .copy-row .label {
+        font-size: var(--step--1);
+        color: var(--ink-soft);
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .value {
+        font: 500 var(--step--1)/1.45 var(--mono);
+        overflow-wrap: anywhere;
+        margin: 0 0 6px;
+      }
+      .value.is-amount {
+        font-size: var(--step-1);
+        line-height: 1.2;
+      }
+      .value .tail {
+        border-bottom: 2px solid var(--caution);
+      }
+      .copy {
+        border: 1.5px solid var(--ink);
+        background: transparent;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 600;
+        font-size: var(--step--1);
+        cursor: pointer;
+        min-width: 112px;
+      }
+      .copy:hover {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .copy.is-done {
+        background: var(--final);
+        border-color: var(--final);
+        color: #fff;
+      }
+      .warn {
+        background: var(--caution-bg);
+        border-left: 4px solid var(--caution);
+        padding: 10px 12px;
+        border-radius: 0 10px 10px 0;
+        margin: 4px 0 0;
+        font-size: var(--step--1);
+      }
+      .warn strong {
+        color: #7a4900;
+      }
+
+      .status {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1.5px solid var(--line);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-top: 6px;
+        flex-shrink: 0;
+        background: var(--ink-faint);
+      }
+      .status[data-state="waiting"] .status-dot {
+        background: var(--ink-soft);
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      .status[data-state="seen"] .status-dot {
+        background: var(--caution);
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+      .status[data-state="confirmed"] .status-dot {
+        background: var(--final);
+      }
+      .status[data-state="expired"] .status-dot {
+        background: var(--error);
+      }
+      .status-title {
+        font-weight: 600;
+        margin: 0;
+      }
+      .status-body {
+        margin: 2px 0 0;
+        color: var(--ink-soft);
+        font-size: var(--step--1);
+        max-width: 52ch;
+      }
+      .status[data-state="confirmed"] {
+        background: var(--final-bg);
+        border: 0;
+        padding: 12px 14px;
+        border-radius: 12px;
+      }
+      .status[data-state="confirmed"] .status-title {
+        color: var(--final);
+      }
+      .timer {
+        font-variant-numeric: tabular-nums;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      .link-btn {
+        border: 0;
+        background: none;
+        padding: 0;
+        margin-top: 14px;
+        color: var(--ink);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        cursor: pointer;
+      }
+
+      /* Prototype-only controls */
+      .proto {
+        position: fixed;
+        left: 8px;
+        bottom: 8px;
+        background: #fff;
+        border: 1px dashed var(--ink-faint);
+        padding: 6px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        color: var(--ink-soft);
+        max-width: calc(100% - 24px);
+      }
+      .proto summary {
+        cursor: pointer;
+      }
+      .proto[open] summary {
+        margin-bottom: 4px;
+      }
+      .proto button {
+        border: 1px solid var(--line);
+        background: var(--paper-raised);
+        border-radius: 6px;
+        padding: 3px 8px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .proto[hidden] {
+        display: none;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div class="streamer">
+          <h1>Matvey</h1>
+          <p data-i18n="tagline"></p>
+        </div>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+        </div>
+      </header>
+
+      <section class="panel" id="formPanel">
+        <form id="form" novalidate>
+          <fieldset class="field">
+            <legend class="label" data-i18n="payWith"></legend>
+            <div class="chips" id="tokens"></div>
+          </fieldset>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="label" for="amount" data-i18n="amount"></label>
+              <div class="amount-wrap">
+                <input
+                  class="input"
+                  id="amount"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  placeholder="0.00"
+                  aria-describedby="amountHint amountError"
+                />
+                <span class="unit" id="unit"></span>
+              </div>
+              <div class="hint" id="amountHint"></div>
+              <div class="error" id="amountError"></div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="nick" data-i18n="nick"></label>
+              <input
+                class="input"
+                id="nick"
+                maxlength="32"
+                autocomplete="nickname"
+                aria-describedby="nickHint"
+              />
+              <div class="hint hint-row" id="nickHint">
+                <span data-i18n="nickHint"></span><span class="count" id="nickCount"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="message" data-i18n="message"></label>
+            <textarea
+              class="input"
+              id="message"
+              rows="3"
+              aria-describedby="messageHint messageError"
+            ></textarea>
+            <div class="hint hint-row" id="messageHint">
+              <span data-i18n="messageHint"></span><span class="count" id="messageCount"></span>
+            </div>
+            <div class="error" id="messageError"></div>
+          </div>
+
+          <div class="banner" id="banner" role="alert" hidden></div>
+          <button class="cta" type="submit" id="cta"></button>
+          <p class="cta-note" data-i18n="ctaNote"></p>
+        </form>
+      </section>
+
+      <section class="panel pay" id="payPanel" hidden aria-live="polite">
+        <h2 data-i18n="payTitle"></h2>
+        <p class="pay-net"><span data-i18n="network"></span> <strong id="payNetwork"></strong></p>
+        <div class="pay-grid">
+          <div>
+            <div class="qr"><canvas id="qr" width="29" height="29" aria-label=""></canvas></div>
+            <div class="qr-note" id="qrNote"></div>
+          </div>
+          <div>
+            <div class="copy-row">
+              <div class="label" data-i18n="exactAmount"></div>
+              <p class="value is-amount" id="payAmount"></p>
+              <button class="copy" type="button" data-copy="amount" data-i18n="copyAmount"></button>
+            </div>
+            <div class="copy-row">
+              <div class="label" data-i18n="address"></div>
+              <p class="value" id="payAddress"></p>
+              <button
+                class="copy"
+                type="button"
+                data-copy="address"
+                data-i18n="copyAddress"
+              ></button>
+            </div>
+          </div>
+        </div>
+        <p class="warn" id="exactWarn" hidden></p>
+        <div class="status" id="status" data-state="waiting">
+          <span class="status-dot" aria-hidden="true"></span>
+          <div>
+            <p class="status-title" id="statusTitle"></p>
+            <p class="status-body" id="statusBody"></p>
+          </div>
+        </div>
+        <button class="link-btn" type="button" id="again" data-i18n="again" hidden></button>
+      </section>
+
+      <aside class="stage" aria-label="Preview">
+        <div class="screen">
+          <span class="screen-live">LIVE</span>
+          <div class="alert" aria-hidden="true">
+            <div class="alert-head">
+              <span class="alert-nick" id="pNick"></span>
+              <span class="alert-dash">—</span>
+              <span class="alert-amount" id="pAmount"></span>
+            </div>
+            <div class="alert-msg" id="pMsg"></div>
+          </div>
+          <p class="stage-caption" data-i18n="previewCaption"></p>
+        </div>
+      </aside>
+    </main>
+
+    <details class="proto" id="proto" hidden>
+      <summary>Prototype</summary>
+      <button type="button" data-state="waiting">Waiting</button>
+      <button type="button" data-state="seen">Payment seen</button>
+      <button type="button" data-state="confirmed">Confirmed</button>
+      <button type="button" data-state="expired">Expired</button>
+    </details>
+    <details class="proto" id="protoForm">
+      <summary>Prototype</summary>
+      <button type="button" data-banner="rate">Too many donations</button>
+      <button type="button" data-banner="busy">Token unavailable</button>
+      <button type="button" data-banner="">Clear</button>
+    </details>
+
+    <script>
+      const TOKENS = [
+        {
+          id: "btc",
+          asset: "BTC",
+          network: "Bitcoin",
+          chain: "bitcoin",
+          min: "0.0001",
+          decimals: 8,
+          address: "bc1qx7m3v9d2l0k8wq5rjz4h6cf2tnyae0g3s8upd5",
+        },
+        {
+          id: "xmr",
+          asset: "XMR",
+          network: "Monero",
+          chain: "monero",
+          min: "0.01",
+          decimals: 12,
+          address:
+            "86Q4bJ2f1gT8hyCKsZ3uVq7mLx2NnE9wR5pYd6aA1tWv3HcLz8KfGq2mRt7NbXsE4oUj5PyVc9DeH3iL6wQ2kZr8Sx1Fm",
+        },
+        {
+          id: "eth",
+          asset: "ETH",
+          network: "Ethereum",
+          chain: "evm",
+          min: "0.002",
+          decimals: 6,
+          tailStep: "0.000001",
+          address: "0x7aE3c41F09b5D2e8a6C0f4B19d3E7A52c8F06b1D",
+        },
+        {
+          id: "usdt-eth",
+          asset: "USDT",
+          network: "Ethereum",
+          chain: "evm",
+          min: "5",
+          decimals: 6,
+          tailStep: "0.0001",
+          address: "0x7aE3c41F09b5D2e8a6C0f4B19d3E7A52c8F06b1D",
+        },
+        {
+          id: "usdc-arb",
+          asset: "USDC",
+          network: "Arbitrum",
+          chain: "evm",
+          min: "1",
+          decimals: 6,
+          tailStep: "0.0001",
+          address: "0x7aE3c41F09b5D2e8a6C0f4B19d3E7A52c8F06b1D",
+        },
+        {
+          id: "usdt-tron",
+          asset: "USDT",
+          network: "Tron",
+          chain: "tron",
+          min: "1",
+          decimals: 6,
+          tailStep: "0.0001",
+          address: "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE",
+        },
+      ];
+      const ICON_BASE = "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/";
+      const CONFIRMATIONS = { bitcoin: 2, monero: 10, evm: 12, tron: 19 };
+
+      const T = {
+        en: {
+          tagline: "Your message shows up on stream as soon as your payment is confirmed.",
+          payWith: "Pay with",
+          amount: "Amount",
+          min: (m, a) => `Minimum ${m} ${a}`,
+          message: "Message",
+          messageHint: "Read out on stream",
+          nick: "Name on stream",
+          nickHint: "Optional",
+          cta: (v) => (v ? `Donate ${v}` : "Donate"),
+          ctaNote: "No account needed. You’ll get an address to pay from any wallet.",
+          previewCaption: "How it looks on stream",
+          msgPlaceholder: "Your message will appear here",
+          errMin: (m, a) => `Enter at least ${m} ${a}.`,
+          errDecimals: (d, a) => `${a} allows up to ${d} decimal places.`,
+          errAmount: "Enter an amount, like 0.05.",
+          errMessage: "Write a message for the stream.",
+          errRate:
+            "You’ve created several donations in a short time. Wait a few minutes and try again.",
+          errBusy: (a, n) =>
+            `${a} on ${n} can’t take donations right now. Try again in a few minutes or pick another option.`,
+          payTitle: "Send your payment",
+          network: "Network:",
+          exactAmount: "Amount",
+          address: "Address",
+          copyAmount: "Copy amount",
+          copyAddress: "Copy address",
+          copied: "Copied",
+          qrWithAmount: "Scan with your wallet. The amount fills in for you.",
+          qrAddressOnly: "The code holds the address only. Enter the amount yourself.",
+          warnExact: (n) =>
+            `<strong>Send exactly this amount on ${n}.</strong> The last digits identify your donation, so any other amount or network can’t be matched.`,
+          waitingTitle: "Waiting for your payment",
+          waitingBody: (t) => `These instructions are valid for <span class="timer">${t}</span>.`,
+          seenTitle: "Payment seen, waiting for confirmation",
+          seenBody: (c, n) =>
+            `${c} of ${n} confirmations. You can close this page; your message will still be shown.`,
+          confirmedTitle: "Thank you, your donation is confirmed",
+          confirmedBody: "Your message is on its way to the stream.",
+          expiredTitle: "These instructions have expired",
+          expiredBody:
+            "If you already paid, don’t pay again. A payment that arrives within the next 24 hours will still be matched to your donation.",
+          again: "Make another donation",
+        },
+        ru: {
+          tagline: "Ваше сообщение появится на стриме, как только платёж подтвердится.",
+          payWith: "Чем платить",
+          amount: "Сумма",
+          min: (m, a) => `Минимум ${m} ${a}`,
+          message: "Сообщение",
+          messageHint: "Будет прочитано на стриме",
+          nick: "Имя на стриме",
+          nickHint: "Необязательно",
+          cta: (v) => (v ? `Задонатить ${v}` : "Задонатить"),
+          ctaNote: "Регистрация не нужна. Вы получите адрес для оплаты из любого кошелька.",
+          previewCaption: "Так это будет на стриме",
+          msgPlaceholder: "Здесь появится ваше сообщение",
+          errMin: (m, a) => `Введите не меньше ${m} ${a}.`,
+          errDecimals: (d, a) => `Для ${a} — не больше ${d} знаков после запятой.`,
+          errAmount: "Введите сумму, например 0.05.",
+          errMessage: "Напишите сообщение для стрима.",
+          errRate:
+            "Вы создали несколько донатов за короткое время. Подождите пару минут и попробуйте снова.",
+          errBusy: (a, n) =>
+            `${a} в сети ${n} сейчас не принимает донаты. Попробуйте через несколько минут или выберите другой вариант.`,
+          payTitle: "Отправьте платёж",
+          network: "Сеть:",
+          exactAmount: "Сумма",
+          address: "Адрес",
+          copyAmount: "Скопировать сумму",
+          copyAddress: "Скопировать адрес",
+          copied: "Скопировано",
+          qrWithAmount: "Отсканируйте кошельком — сумма подставится сама.",
+          qrAddressOnly: "В коде только адрес. Сумму введите вручную.",
+          warnExact: (n) =>
+            `<strong>Отправьте ровно эту сумму в сети ${n}.</strong> По последним цифрам мы находим донат, другую сумму или сеть сопоставить не получится.`,
+          waitingTitle: "Ждём ваш платёж",
+          waitingBody: (t) => `Реквизиты действительны ещё <span class="timer">${t}</span>.`,
+          seenTitle: "Платёж найден, ждём подтверждения",
+          seenBody: (c, n) =>
+            `${c} из ${n} подтверждений. Страницу можно закрыть — сообщение всё равно покажут.`,
+          confirmedTitle: "Спасибо, донат подтверждён",
+          confirmedBody: "Ваше сообщение уже летит на стрим.",
+          expiredTitle: "Срок реквизитов истёк",
+          expiredBody:
+            "Если вы уже заплатили, не платите повторно. Платёж, который придёт в течение 24 часов, всё равно засчитается.",
+          again: "Сделать ещё один донат",
+        },
+      };
+
+      const $ = (id) => document.getElementById(id);
+      let lang =
+        (() => {
+          try {
+            return localStorage.getItem("crnpay-lang");
+          } catch {
+            return null;
+          }
+        })() || (navigator.language.startsWith("ru") ? "ru" : "en");
+      let tokenId = "xmr";
+      let state = "waiting";
+      let remaining = 59 * 60 + 41;
+      let exact = null;
+      let attempted = false;
+      let banner = "";
+
+      const token = () => TOKENS.find((t) => t.id === tokenId);
+      const t = (k, ...a) => {
+        const v = T[lang][k];
+        return typeof v === "function" ? v(...a) : v;
+      };
+
+      function toUnits(str, dec) {
+        const [i, f = ""] = str.split(".");
+        return (
+          BigInt(i || "0") * 10n ** BigInt(dec) + BigInt((f + "0".repeat(dec)).slice(0, dec) || "0")
+        );
+      }
+      function fromUnits(n, dec) {
+        const s = n.toString().padStart(dec + 1, "0");
+        return `${s.slice(0, -dec)}.${s.slice(-dec)}`;
+      }
+      function trimZeros(s) {
+        return s.includes(".") ? s.replace(/\.?0+$/, "") : s;
+      }
+
+      function validateAmount(raw) {
+        const tk = token();
+        const v = raw.trim().replace(",", ".");
+        if (!v) return { error: t("errAmount") };
+        if (!/^\d*\.?\d*$/.test(v) || v === ".") return { error: t("errAmount") };
+        const frac = (v.split(".")[1] || "").length;
+        if (frac > tk.decimals) return { error: t("errDecimals", tk.decimals, tk.asset) };
+        if (toUnits(v, tk.decimals) < toUnits(tk.min, tk.decimals))
+          return { error: t("errMin", tk.min, tk.asset) };
+        return { value: v };
+      }
+
+      function renderTokens() {
+        $("tokens").innerHTML = TOKENS.map(
+          (tk) => `
+    <label class="chip">
+      <input type="radio" name="token" value="${tk.id}" ${tk.id === tokenId ? "checked" : ""}>
+      <span><img src="${ICON_BASE}${tk.asset.toLowerCase()}.svg" alt="" width="20" height="20">${tk.asset}<em>${tk.network}</em></span>
+    </label>`,
+        ).join("");
+      }
+
+      function renderPreview() {
+        const tk = token();
+        const nick = $("nick").value.trim();
+        const msg = $("message").value.trim();
+        const amt = validateAmount($("amount").value).value;
+        $("pNick").textContent = nick || "Аноним";
+        $("pAmount").innerHTML = "";
+        $("pAmount").append(
+          exact ? shownAmount() : amt ? trimZeros(amt) : tk.min,
+          Object.assign(document.createElement("small"), { textContent: tk.asset }),
+        );
+        $("pMsg").textContent = msg || t("msgPlaceholder");
+        $("pMsg").classList.toggle("is-empty", !msg);
+      }
+
+      function renderForm() {
+        const tk = token();
+        $("unit").textContent = tk.asset;
+        $("amountHint").textContent = t("min", tk.min, tk.asset);
+        const m = $("message").value.length;
+        $("messageCount").textContent = `${m} / 300`;
+        $("messageCount").classList.toggle("is-over", m > 300);
+        $("nickCount").textContent = `${$("nick").value.length} / 32`;
+        const amt = validateAmount($("amount").value);
+        $("cta").textContent = t("cta", amt.value ? `${trimZeros(amt.value)} ${tk.asset}` : "");
+        if (attempted) showErrors();
+        $("banner").hidden = !banner;
+        $("cta").hidden = !!banner;
+        $("banner").textContent =
+          banner === "rate"
+            ? t("errRate")
+            : banner === "busy"
+              ? t("errBusy", tk.asset, tk.network)
+              : "";
+      }
+
+      function showErrors() {
+        const amt = validateAmount($("amount").value);
+        const msg = $("message").value.trim();
+        $("amountError").textContent = amt.error || "";
+        $("amount").setAttribute("aria-invalid", !!amt.error);
+        const msgErr = !msg ? t("errMessage") : "";
+        $("messageError").textContent = msgErr;
+        $("message").setAttribute("aria-invalid", !!msgErr);
+        return !amt.error && !msgErr;
+      }
+
+      function renderPay() {
+        const tk = token();
+        $("payNetwork").textContent = tk.chain === "tron" ? "Tron (TRC-20)" : tk.network;
+        const withTail = !!tk.tailStep;
+        const shown = shownAmount();
+        $("payAmount").innerHTML = "";
+        if (withTail) {
+          const tailEnd =
+            shown.indexOf(".") + 1 + tk.tailStep.split(".")[1].replace(/0+$/, "").length;
+          const tailStart = tailEnd - 4;
+          $("payAmount").append(
+            shown.slice(0, tailStart),
+            Object.assign(document.createElement("span"), {
+              className: "tail",
+              textContent: shown.slice(tailStart, tailEnd),
+            }),
+            shown.slice(tailEnd),
+            ` ${tk.asset}`,
+          );
+        } else {
+          $("payAmount").append(`${shown} ${tk.asset}`);
+        }
+        $("payAddress").textContent = tk.address;
+        $("qrNote").textContent = withTail ? t("qrAddressOnly") : t("qrWithAmount");
+        $("exactWarn").hidden = !withTail;
+        $("exactWarn").innerHTML = withTail ? t("warnExact", tk.network) : "";
+        drawQr(tk.address + (withTail ? "" : exact));
+        renderPreview();
+        renderStatus();
+      }
+
+      function shownAmount() {
+        const tk = token();
+        if (!tk.tailStep) return trimZeros(exact);
+        const stepDec = tk.tailStep.split(".")[1].replace(/0+$/, "").length;
+        const [i, f] = exact.split(".");
+        const keep = Math.max(stepDec, f.replace(/0+$/, "").length);
+        return `${i}.${f.slice(0, keep)}`;
+      }
+
+      function renderStatus() {
+        const tk = token();
+        $("status").dataset.state = state;
+        const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
+        const ss = String(remaining % 60).padStart(2, "0");
+        const need = CONFIRMATIONS[tk.chain];
+        const map = {
+          waiting: [t("waitingTitle"), t("waitingBody", `${mm}:${ss}`)],
+          seen: [t("seenTitle"), t("seenBody", 1, need)],
+          confirmed: [t("confirmedTitle"), t("confirmedBody")],
+          expired: [t("expiredTitle"), t("expiredBody")],
+        };
+        $("statusTitle").textContent = map[state][0];
+        $("statusBody").innerHTML = map[state][1];
+        $("again").hidden = !(state === "confirmed" || state === "expired");
+      }
+
+      function drawQr(seedStr) {
+        const c = $("qr"),
+          ctx = c.getContext("2d"),
+          n = 29;
+        let seed = [...seedStr].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+        const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32;
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, n, n);
+        ctx.fillStyle = "#16213E";
+        const finder = (x, y) => {
+          ctx.fillRect(x, y, 7, 7);
+          ctx.clearRect(x + 1, y + 1, 5, 5);
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(x + 1, y + 1, 5, 5);
+          ctx.fillStyle = "#16213E";
+          ctx.fillRect(x + 2, y + 2, 3, 3);
+        };
+        const inFinder = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+        for (let y = 0; y < n; y++)
+          for (let x = 0; x < n; x++) if (!inFinder(x, y) && rnd() > 0.52) ctx.fillRect(x, y, 1, 1);
+        finder(0, 0);
+        finder(n - 7, 0);
+        finder(0, n - 7);
+      }
+
+      function applyLang() {
+        document.documentElement.lang = lang;
+        document
+          .querySelectorAll("[data-i18n]")
+          .forEach((el) => (el.textContent = t(el.dataset.i18n)));
+        document
+          .querySelectorAll("[data-lang]")
+          .forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+        $("qr").setAttribute("aria-label", "QR");
+        renderForm();
+        renderPreview();
+        if (exact) renderPay();
+      }
+
+      function render() {
+        renderForm();
+        renderPreview();
+      }
+
+      $("tokens").addEventListener("change", (e) => {
+        tokenId = e.target.value;
+        banner = "";
+        render();
+      });
+      ["amount", "message", "nick"].forEach((id) => $(id).addEventListener("input", render));
+      document.querySelectorAll("[data-lang]").forEach((b) =>
+        b.addEventListener("click", () => {
+          lang = b.dataset.lang;
+          try {
+            localStorage.setItem("crnpay-lang", lang);
+          } catch {}
+          applyLang();
+        }),
+      );
+      document.querySelectorAll("[data-banner]").forEach((b) =>
+        b.addEventListener("click", () => {
+          banner = b.dataset.banner;
+          renderForm();
+        }),
+      );
+
+      $("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        attempted = true;
+        if (!showErrors()) {
+          (validateAmount($("amount").value).error ? $("amount") : $("message")).focus();
+          return;
+        }
+        const tk = token();
+        const base = toUnits(validateAmount($("amount").value).value, tk.decimals);
+        const step = tk.tailStep ? toUnits(tk.tailStep, tk.decimals) : 0n;
+        const tail = step * BigInt(1 + Math.floor(Math.random() * 9999));
+        exact = fromUnits(base + tail, tk.decimals);
+        state = "waiting";
+        $("formPanel").hidden = true;
+        $("payPanel").hidden = false;
+        $("proto").hidden = false;
+        $("protoForm").hidden = true;
+        renderPay();
+        $("payPanel").querySelector("h2").setAttribute("tabindex", "-1");
+        $("payPanel").querySelector("h2").focus();
+        window.scrollTo({ top: 0 });
+      });
+
+      document.querySelectorAll("[data-copy]").forEach((b) =>
+        b.addEventListener("click", async () => {
+          const text = b.dataset.copy === "amount" ? shownAmount() : token().address;
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch {}
+          b.textContent = t("copied");
+          b.classList.add("is-done");
+          setTimeout(() => {
+            b.textContent = t(b.dataset.i18n);
+            b.classList.remove("is-done");
+          }, 1600);
+        }),
+      );
+
+      document.querySelectorAll("#proto [data-state]").forEach((b) =>
+        b.addEventListener("click", () => {
+          state = b.dataset.state;
+          renderStatus();
+        }),
+      );
+
+      $("again").addEventListener("click", () => {
+        exact = null;
+        attempted = false;
+        $("message").value = "";
+        $("amount").value = "";
+        $("payPanel").hidden = true;
+        $("formPanel").hidden = false;
+        $("proto").hidden = true;
+        $("protoForm").hidden = false;
+        showErrors();
+        $("amountError").textContent = "";
+        $("messageError").textContent = "";
+        $("amount").removeAttribute("aria-invalid");
+        $("message").removeAttribute("aria-invalid");
+        render();
+      });
+
+      setInterval(() => {
+        if (exact && state === "waiting" && remaining > 0) {
+          remaining--;
+          renderStatus();
+        }
+      }, 1000);
+
+      renderTokens();
+      applyLang();
+    </script>
+  </body>
+</html>

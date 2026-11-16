@@ -2,6 +2,8 @@
 
 **What to build:** The Streamer adds the Alert page to OBS via its secret link and sees each Confirmed Donation as an Alert in Russian: Nickname (or "Аноним"), amount with Token, and message, one at a time, oldest first, 8 seconds each, silent. Alerts missed while OBS was closed replay on open unless Confirmed more than 1 hour ago. A test link shows a sample Alert. See `docs/domain/alerts.md` and the spec's "Alert module".
 
+**Design:** Follow `docs/design.md`; see the prototypes in `design/` for reference.
+
 **Blocked by:** 02
 
 **Status:** ready-for-agent

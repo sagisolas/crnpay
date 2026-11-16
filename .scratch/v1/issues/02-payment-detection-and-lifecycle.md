@@ -2,6 +2,8 @@
 
 **What to build:** After paying, the Donor watches the payment screen move from waiting, to "Payment seen, waiting for confirmation", to "Thank you, your Donation is confirmed", or to the Expired message. Behind it, a Payment watcher polls each Token's chain adapter every 15 s, matches transfers by exact amount, records Payments, tracks confirmations, and Confirms Donations at the Token's confirmation count. Uses the fake adapter. See `docs/domain/donations.md` ("Lifecycle", "Matching rules") and the spec's "Domain modules" and "Chain adapter interface".
 
+**Design:** Follow `docs/design.md`; see the prototypes in `design/` for reference.
+
 **Blocked by:** 01
 
 **Status:** ready-for-agent

@@ -2,6 +2,8 @@
 
 **What to build:** A Donor whose browser prefers Russian sees the donation page, errors, Payment instructions and status texts in Russian; everyone else gets English. An EN/RU switch changes the language and is remembered. See `docs/domain/donations.md` ("Donation page") and the spec's "Locale module".
 
+**Design:** Follow `docs/design.md`; see the prototypes in `design/` for reference.
+
 **Blocked by:** 01
 
 **Status:** ready-for-agent

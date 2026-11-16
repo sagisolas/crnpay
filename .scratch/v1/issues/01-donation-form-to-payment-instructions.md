@@ -2,6 +2,8 @@
 
 **What to build:** A Donor opens the donation page (English), picks a unique-amount Token, enters an amount, a message and an optional Nickname, submits, and sees Payment instructions: the shared address as a QR code with a copy button, the network, and the exact amount (requested amount plus a unique tail) with a copy button and a "send exactly this amount" warning. Runs against a fake chain adapter; no real chain yet. Lays the groundwork the other tickets build on: SQLite storage with migrations, an injectable clock, and the config additions. See the spec sections "Config and environment", "Storage" and "HTTP API and pages", and `docs/domain/donations.md`.
 
+**Design:** Follow `docs/design.md`; see the prototypes in `design/` for reference.
+
 **Blocked by:** None (can start immediately)
 
 **Status:** ready-for-agent
