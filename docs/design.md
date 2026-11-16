@@ -8,18 +8,20 @@ Reference prototypes live in `design/`. They show the look, but they are not sou
 
 Colours are defined once as CSS custom properties and referenced by role. Components never use raw colour values.
 
-| Role       | Character          | Use                                                                   |
-| ---------- | ------------------ | --------------------------------------------------------------------- |
-| paper      | cool light grey    | page background. Never warm cream                                     |
-| raised     | lighter than paper | inputs, chips, surfaces that sit on paper                             |
-| ink        | deep navy          | text, borders, selected states. Never pure black or tinted near-black |
-| ink-soft   | muted ink          | hints, secondary text                                                 |
-| line       | light ink          | idle borders and dividers                                             |
-| signal     | magenta            | the one primary action per screen, focus rings. Nothing else          |
-| caution    | amber              | warnings where a mistake loses money (exact amount, network)          |
-| final      | green              | the Confirmed state only                                              |
-| error      | red                | validation errors, blocking banners, the LIVE badge                   |
-| alert-name | bright yellow      | the Nickname in an Alert                                              |
+| Role          | Character          | Use                                                                   |
+| ------------- | ------------------ | --------------------------------------------------------------------- |
+| paper         | cool light grey    | page background. Never warm cream                                     |
+| raised        | lighter than paper | inputs, chips, surfaces that sit on paper                             |
+| ink           | deep navy          | text, borders, selected states. Never pure black or tinted near-black |
+| ink-soft      | muted ink          | hints, secondary text                                                 |
+| line          | light ink          | idle borders and dividers                                             |
+| signal        | magenta            | the one primary action per screen, focus rings. Nothing else          |
+| caution       | amber              | warnings where a mistake loses money (exact amount, network)          |
+| final         | green              | the Confirmed state only                                              |
+| error         | red                | validation error text, blocking banners, the LIVE badge               |
+| field-focus   | navy, like ink     | border and glow of a focused field                                    |
+| field-invalid | red, like error    | border and glow of a field with an error                              |
+| alert-name    | bright yellow      | the Nickname in an Alert                                              |
 
 Alert text sits on top of video, so it uses white and alert-name with a dark outline. It never uses the page palette for its background.
 
@@ -80,7 +82,7 @@ Rules:
 
 ## Accessibility
 
-- Every interactive element has a visible focus ring in signal.
+- Every interactive element has a visible focus ring. Buttons and chips use signal. A focused field uses field-focus for both its border and its glow, and a field with an error uses field-invalid for both. Field states have their own tokens and never reuse content colours, even when the value matches.
 - Every input has a label. Errors are linked to their input with `aria-describedby` and mark it with `aria-invalid`.
 - Status changes are announced with `aria-live`.
 - Text contrast meets WCAG AA on paper and on raised surfaces.

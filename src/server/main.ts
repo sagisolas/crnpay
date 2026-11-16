@@ -1,15 +1,21 @@
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 import { serve } from "@hono/node-server";
 import { z } from "zod";
 import { createApp } from "./app.js";
+import { systemClock } from "./clock.js";
 import { loadConfig } from "./config.js";
 import { parseEnv } from "./env.js";
 import { createLogger } from "./logger.js";
+import { openDatabase } from "./storage.js";
 
 async function main(): Promise<void> {
   const env = parseEnv(process.env);
   const logger = createLogger(env.LOG_LEVEL);
   const config = await loadConfig(env.CONFIG_PATH);
-  const app = createApp(logger);
+  mkdirSync(dirname(env.DB_PATH), { recursive: true });
+  const db = openDatabase(env.DB_PATH);
+  const app = createApp({ logger, config, db, clock: systemClock });
 
   const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
     logger.info(
@@ -20,7 +26,10 @@ async function main(): Promise<void> {
 
   const shutdown = (signal: NodeJS.Signals): void => {
     logger.info({ signal }, "shutting down");
-    server.close(() => process.exit(0));
+    server.close(() => {
+      db.close();
+      process.exit(0);
+    });
   };
   process.once("SIGTERM", shutdown);
   process.once("SIGINT", shutdown);

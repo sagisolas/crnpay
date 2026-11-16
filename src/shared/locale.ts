@@ -1,0 +1,43 @@
+export const en = {
+  pageTitle: "Donate to {name}",
+  tagline: "Your message shows up on stream as soon as your payment is confirmed.",
+  payWith: "Pay with",
+  amount: "Amount",
+  minimum: "Minimum {amount}",
+  nickname: "Name on stream",
+  nicknameHint: "Optional",
+  message: "Message",
+  messageHint: "Read out on stream",
+  messagePlaceholder: "Your message will appear here",
+  donate: "Donate",
+  donateAmount: "Donate {amount}",
+  donateNote: "No account needed. You’ll get an address to pay from any wallet.",
+  previewCaption: "How it looks on stream",
+  live: "LIVE",
+  amountInvalid: "Enter an amount, like 0.05.",
+  amountTooManyDecimals: "{symbol} allows up to {decimals} decimal places.",
+  amountBelowMinimum: "Enter at least {minimum}.",
+  messageRequired: "Write a message for the stream.",
+  messageTooLong: "Keep the message to {max} characters.",
+  nicknameTooLong: "Keep the name to {max} characters.",
+  rateLimited:
+    "You’ve created several donations in a short time. Wait a few minutes and try again.",
+  tokenUnavailable:
+    "{symbol} on {network} can’t take donations right now. Try again in a few minutes or pick another option.",
+  requestFailed: "The donation wasn’t created. Check your connection and try again.",
+  payTitle: "Send your payment",
+  network: "Network:",
+  exactAmount: "Amount",
+  address: "Address",
+  copyAmount: "Copy amount",
+  copyAddress: "Copy address",
+  copied: "Copied",
+  qrAddressOnly: "The code holds the address only. Enter the amount yourself.",
+  exactWarningTitle: "Send exactly this amount on {network}.",
+  exactWarningBody:
+    "The last digits identify your donation, so any other amount or network can’t be matched.",
+  waitingTitle: "Waiting for your payment",
+  waitingBody: "These instructions are valid for {time}.",
+} as const;
+
+export type Dictionary = { [Key in keyof typeof en]: string };

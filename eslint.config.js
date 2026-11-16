@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 const amountSafety = {
   message:
-    "Token amounts are bigint in base units. Parse decimals with parseAmount from src/server/amount.ts.",
+    "Token amounts are bigint in base units. Parse decimals with parseAmount from src/shared/amount.ts.",
 };
 
 export default defineConfig(

@@ -1,3 +1,17 @@
 {
-  "tokens": []
+  "streamerName": "Your name",
+  "tokens": [
+    {
+      "id": "usdt-tron",
+      "symbol": "USDT",
+      "network": "tron",
+      "networkName": "Tron",
+      "chain": "tron",
+      "decimals": 6,
+      "minimum": "1",
+      "confirmations": 20,
+      "address": "T...",
+      "amountTailStep": "0.0001"
+    }
+  ]
 }

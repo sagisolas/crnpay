@@ -3,7 +3,8 @@
   "compilerOptions": {
     "lib": ["es2022", "dom", "dom.iterable"],
     "types": [],
-    "rootDir": "."
+    "rootDir": ".."
   },
-  "include": ["."]
+  "include": [".", "../shared"],
+  "exclude": ["../shared/**/*.test.ts"]
 }

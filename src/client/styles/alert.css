@@ -1,0 +1,54 @@
+.alert {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10cqw;
+  color: var(--alert-text);
+  text-align: center;
+}
+
+.alert-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0 1.6cqw;
+  -webkit-text-stroke: 0.7cqw var(--alert-outline);
+  paint-order: stroke fill;
+  font: 800 4.2cqw / 1.15 var(--display);
+}
+
+.alert-nick {
+  min-width: 0;
+  color: var(--alert-name);
+  overflow-wrap: anywhere;
+}
+
+.alert-amount {
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.alert-amount small {
+  margin-left: 0.3em;
+  font-size: 0.6em;
+}
+
+.alert-msg {
+  max-width: 72cqw;
+  margin-top: 1.4cqw;
+  font: 600 2.5cqw / 1.35 var(--text);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  text-shadow:
+    0 0.2cqw 0 var(--alert-outline),
+    0 0 1.2cqw var(--alert-glow);
+}
+
+.alert-msg.is-empty {
+  color: color-mix(in srgb, var(--alert-text) 60%, transparent);
+  font-style: italic;
+}

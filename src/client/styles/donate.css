@@ -1,0 +1,282 @@
+@import "./base.css";
+@import "./alert.css";
+
+.page {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  max-width: 1180px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.topbar {
+  order: -2;
+  grid-column: 1 / -1;
+}
+
+.streamer h1 {
+  margin: 0;
+  font: 800 var(--step-3) / 1 var(--display);
+  letter-spacing: -0.02em;
+}
+
+.streamer p {
+  margin: 6px 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.panel {
+  min-width: 0;
+}
+
+.stage {
+  order: -1;
+}
+
+.screen {
+  position: relative;
+  width: min(100%, 28dvh * 16 / 9);
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: var(--radius-frame);
+  background:
+    radial-gradient(120% 90% at 80% 20%, var(--stage-glow) 0%, transparent 60%),
+    radial-gradient(90% 80% at 10% 100%, var(--stage-shade) 0%, transparent 70%), var(--stage);
+  container-type: inline-size;
+}
+
+.screen-live {
+  position: absolute;
+  top: 3.5cqw;
+  right: 3.5cqw;
+  border-radius: 0.6cqw;
+  padding: 0.8cqw 1.4cqw;
+  background: var(--error);
+  color: var(--on-dark);
+  font: 700 1.6cqw / 1 var(--display);
+}
+
+.stage-caption {
+  position: absolute;
+  top: 3.5cqw;
+  left: 3.5cqw;
+  right: 14cqw;
+  margin: 0;
+  color: color-mix(in srgb, var(--on-dark) 70%, transparent);
+  font-size: var(--step--1);
+  line-height: 1.3;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.amount-wrap {
+  position: relative;
+}
+
+.input-amount {
+  padding-right: 64px;
+  font: 500 var(--step-0) / 1.5 var(--mono);
+}
+
+.unit {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: var(--ink-soft);
+  font: 700 var(--step--1) / 1 var(--display);
+}
+
+.cta-note {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.pay h2 {
+  margin: 0 0 4px;
+  font: 700 var(--step-1) / 1.2 var(--display);
+}
+
+.pay-net {
+  margin: 0 0 10px;
+  color: var(--ink-soft);
+}
+
+.pay-net strong {
+  color: var(--ink);
+}
+
+.pay-grid {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.qr {
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: 10px;
+  background: var(--qr-surface);
+}
+
+.qr img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.qr-note {
+  margin: 6px 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.35;
+}
+
+.copy-row {
+  margin-bottom: 14px;
+}
+
+.value-label {
+  margin-bottom: 4px;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.value {
+  margin: 0 0 6px;
+  font: 500 var(--step--1) / 1.45 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.value-amount {
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.pay .banner-caution {
+  margin-top: 4px;
+}
+
+.status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+  border-top: 1.5px solid var(--line);
+  padding-top: 10px;
+}
+
+.status-dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.status-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.status-body {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (max-width: 719px) {
+  .topbar {
+    display: flex;
+    align-items: center;
+  }
+
+  .streamer p,
+  .cta-note {
+    display: none;
+  }
+
+  .chips {
+    gap: 6px;
+  }
+
+  .chip span {
+    gap: 4px;
+    padding: 5px 9px;
+    font-size: var(--step--1);
+  }
+
+  .chip img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .field {
+    margin-bottom: 10px;
+  }
+
+  textarea.input {
+    height: 60px;
+  }
+
+  .banner-error {
+    padding: 6px 10px;
+  }
+}
+
+@media (min-width: 560px) {
+  .pay-grid {
+    grid-template-columns: 160px 1fr;
+    gap: 24px;
+  }
+}
+
+@media (min-width: 720px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-content: center;
+    align-items: center;
+    gap: 24px 48px;
+    padding: 28px 32px;
+  }
+
+  .stage {
+    order: 0;
+  }
+
+  .screen {
+    width: 100%;
+  }
+
+  .pay h2 {
+    font-size: var(--step-2);
+  }
+
+  .pay-net {
+    margin-bottom: 16px;
+  }
+
+  .status {
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+}

@@ -1,5 +1,5 @@
 FROM node:26-alpine AS base
-RUN npm install -g pnpm@11.8.0
+RUN npm install -g pnpm@11.8.0 && apk add --no-cache python3 make g++
 WORKDIR /app
 
 FROM base AS build

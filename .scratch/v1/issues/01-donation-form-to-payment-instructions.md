@@ -15,6 +15,6 @@
 - [ ] Create-Donation endpoint validates Token, amount (minimum, decimal places), message (1–300 chars) and Nickname (≤32 chars), trimming and stripping control characters, and returns localized-ready error codes
 - [ ] Tail is a random 1–9999 steps of the Token's `amountTailStep`, never one held by a Waiting Donation or one within its 24 h hold; when none is free, the Token answers "try again later"
 - [ ] Payment instructions show a QR code of the address, copy buttons for address and amount, and the exact-amount warning
-- [ ] Message and Nickname are never rendered as HTML
+- [ ] Message and Nickname are never rendered as HTML (the server never puts them in HTML; the page script shows them with `textContent`, which the HTTP tests cannot reach)
 - [ ] Donation created is logged at info (Token, amount)
 - [ ] Tests through the HTTP app with in-memory SQLite, fake adapter and fake clock cover validation, tail allocation, tail exhaustion and HTML escaping
