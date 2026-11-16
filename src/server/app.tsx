@@ -6,7 +6,6 @@ import type { Logger } from "pino";
 import { z } from "zod";
 import { formatAmount } from "../shared/amount.js";
 import type { PaymentInstructions } from "../shared/donation-api.js";
-import { en } from "../shared/locale.js";
 import type { Clock } from "./clock.js";
 import type { Config, UniqueAmountToken } from "./config.js";
 import { createDonations, DEFAULT_TAIL_STEPS } from "./donations.js";
@@ -14,6 +13,7 @@ import { tokenIcon } from "./icons.js";
 import { qrDataUrl } from "./qr.js";
 import type { Db } from "./storage.js";
 import { DonatePage, type DonateToken } from "./ui/donate-page.js";
+import { createI18n, I18nProvider } from "./ui/i18n.js";
 
 const MAX_BODY_BYTES = 16 * 1024;
 
@@ -87,7 +87,11 @@ export function createApp({ logger, config, db, clock, tailSteps = DEFAULT_TAIL_
   );
 
   app.get("/", (c) =>
-    c.html(<DonatePage streamerName={config.streamerName} tokens={pageTokens} t={en} />),
+    c.html(
+      <I18nProvider value={createI18n("en")}>
+        <DonatePage streamerName={config.streamerName} tokens={pageTokens} />
+      </I18nProvider>,
+    ),
   );
 
   app.post("/api/donations", async (c) => {

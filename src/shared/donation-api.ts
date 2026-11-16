@@ -9,6 +9,7 @@ export interface PageToken {
 }
 
 export interface DonatePageData {
+  locale: string;
   strings: Dictionary;
   tokens: PageToken[];
 }

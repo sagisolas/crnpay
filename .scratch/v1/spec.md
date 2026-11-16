@@ -88,7 +88,7 @@ v1 Tokens: Bitcoin (on-chain), ETH, ERC-20 tokens on EVM networks, TRC-20 tokens
 - **Payment instructions allocation**: unique amount picks a random free tail (1–9999 steps) not held by any Donation of the same Token that is Waiting or within its 24 h hold; unique address asks the chain adapter for the next address, preferring a never-paid address from a Donation past its hold.
 - **Payment watcher**: on a fixed interval (15 s) per Token, asks the Token's chain adapter for incoming transfers, matches each to a Donation by the Token's matching method, records Payments, updates confirmation counts, and moves Donations to Confirmed. Runs on an injected scheduler so tests drive it through the clock.
 - **Alert module**: creates one Alert per Confirmed Donation, broadcasts it to connected Alert pages over Server-Sent Events, records when it was shown, and on connect replays unshown Alerts Confirmed within the last hour.
-- **Locale module**: typed dictionaries for English and Russian with compile-time key parity; no i18n library. The Donor's message and Nickname are never translated.
+- **Locale module**: typed dictionaries for English and Russian with compile-time key parity, written as ICU messages and formatted with FormatJS `intl-messageformat` (ADR-0007). The Donor's message and Nickname are never translated.
 
 ### Chain adapter interface
 

@@ -1,12 +1,17 @@
 ## Implementation
 
 - Code requires extra safety as it works with payments
-- Add logging to significant events in code using industry standard libs
+- Add logging to significant events in code using industry standard libs. Dont write tests for logging.
+- Extract reusable UI components (such as buttons, lists) and make them configurable as required by current code
 
 ## Workflow
 
 - Run tests after making non cosmetical changes
 - Run formatting before commit
+
+## Style
+
+- Dont add ticket id in commit message
 
 ## Docs
 

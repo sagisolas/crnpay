@@ -23,6 +23,7 @@
     "better-sqlite3": "^13.2.0",
     "cryptocurrency-icons": "^0.18.1",
     "hono": "^4.13.19",
+    "intl-messageformat": "^12.2.0",
     "pino": "^10.4.0",
     "qrcode": "^1.5.4",
     "zod": "^4.6.7"

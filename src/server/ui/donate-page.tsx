@@ -1,13 +1,12 @@
 import { ANONYMOUS } from "../../shared/alert.js";
 import type { DonatePageData, PageToken } from "../../shared/donation-api.js";
-import type { Dictionary } from "../../shared/locale.js";
-import { fill } from "../../shared/template.js";
 import { AlertView } from "./alert.js";
 import { Banner } from "./banner.js";
 import { Button } from "./button.js";
 import { ChipGroup } from "./chip-group.js";
 import { CopyButton } from "./copy-button.js";
 import { Field } from "./field.js";
+import { useI18n } from "./i18n.js";
 import { Layout } from "./layout.js";
 
 export interface DonateToken extends PageToken {
@@ -17,16 +16,17 @@ export interface DonateToken extends PageToken {
 interface DonatePageProps {
   streamerName: string;
   tokens: DonateToken[];
-  t: Dictionary;
 }
 
 function scriptJson(value: unknown): string {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export function DonatePage({ streamerName, tokens, t }: DonatePageProps) {
+export function DonatePage({ streamerName, tokens }: DonatePageProps) {
+  const { locale, strings: t, phrase } = useI18n();
   const first = tokens[0];
   const pageData: DonatePageData = {
+    locale,
     strings: t,
     tokens: tokens.map(({ id, symbol, networkName, decimals, minimum }) => ({
       id,
@@ -39,8 +39,8 @@ export function DonatePage({ streamerName, tokens, t }: DonatePageProps) {
 
   return (
     <Layout
-      title={fill(t.pageTitle, { name: streamerName })}
-      lang="en"
+      title={phrase("pageTitle", { name: streamerName })}
+      lang={locale}
       stylesheet="/assets/donate.css"
       script="/assets/donate.js"
     >
@@ -69,7 +69,13 @@ export function DonatePage({ streamerName, tokens, t }: DonatePageProps) {
               <Field
                 id="amount"
                 label={t.amount}
-                hint={first ? fill(t.minimum, { amount: `${first.minimum} ${first.symbol}` }) : ""}
+                hint={
+                  first
+                    ? phrase("minimum", {
+                        amount: `${first.minimum} ${first.symbol}`,
+                      })
+                    : ""
+                }
               >
                 <div class="amount-wrap">
                   <input
@@ -129,12 +135,12 @@ export function DonatePage({ streamerName, tokens, t }: DonatePageProps) {
               <div class="copy-row">
                 <div class="value-label">{t.exactAmount}</div>
                 <p class="value value-amount" id="pay-amount" />
-                <CopyButton target="amount" label={t.copyAmount} copiedLabel={t.copied} />
+                <CopyButton target="amount" label={t.copyAmount} />
               </div>
               <div class="copy-row">
                 <div class="value-label">{t.address}</div>
                 <p class="value" id="pay-address" />
-                <CopyButton target="address" label={t.copyAddress} copiedLabel={t.copied} />
+                <CopyButton target="address" label={t.copyAddress} />
               </div>
             </div>
           </div>

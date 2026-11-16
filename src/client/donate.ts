@@ -12,7 +12,7 @@ import {
 import { ANONYMOUS } from "../shared/alert.js";
 import type { DonatePageData, PageToken, PaymentInstructions } from "../shared/donation-api.js";
 import type { Dictionary } from "../shared/locale.js";
-import { fill } from "../shared/template.js";
+import { formatMessage } from "../shared/i18n.js";
 
 const FIELDS = ["amount", "message", "nickname"] as const;
 
@@ -32,8 +32,8 @@ const query = (selector: string): HTMLElement => {
 };
 
 const data = JSON.parse(byId("page-data").textContent) as DonatePageData;
-const phrase = (key: keyof Dictionary, values: Record<string, string> = {}): string =>
-  fill(data.strings[key], values);
+const phrase = (key: keyof Dictionary, values: Record<string, string | number> = {}): string =>
+  formatMessage(data.locale, data.strings[key], values);
 
 const form = byId("donation-form") as HTMLFormElement;
 const inputs = {
@@ -68,14 +68,14 @@ function errorText(field: keyof FieldErrors, code: string, token: PageToken): st
     "amount.invalid": phrase("amountInvalid"),
     "amount.too_many_decimals": phrase("amountTooManyDecimals", {
       symbol: token.symbol,
-      decimals: String(token.decimals),
+      decimals: token.decimals,
     }),
     "amount.below_minimum": phrase("amountBelowMinimum", {
       minimum: `${token.minimum} ${token.symbol}`,
     }),
     "message.required": phrase("messageRequired"),
-    "message.too_long": phrase("messageTooLong", { max: String(MESSAGE_MAX_LENGTH) }),
-    "nickname.too_long": phrase("nicknameTooLong", { max: String(NICKNAME_MAX_LENGTH) }),
+    "message.too_long": phrase("messageTooLong", { max: MESSAGE_MAX_LENGTH }),
+    "nickname.too_long": phrase("nicknameTooLong", { max: NICKNAME_MAX_LENGTH }),
   };
   return messages[`${field}.${code}`] ?? phrase("requestFailed");
 }
