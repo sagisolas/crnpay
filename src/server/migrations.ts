@@ -33,6 +33,15 @@ export const migrations: readonly string[] = [
     PRIMARY KEY (network, token_id, tx_id, output_index)
   ) STRICT;
 
+  CREATE TABLE alerts (
+    id TEXT PRIMARY KEY,
+    donation_id TEXT NOT NULL UNIQUE REFERENCES donations (id),
+    created_at INTEGER NOT NULL,
+    shown_at INTEGER
+  ) STRICT;
+
+  CREATE INDEX alerts_unshown ON alerts (created_at) WHERE shown_at IS NULL;
+
   CREATE TABLE chain_cursors (
     token_id TEXT PRIMARY KEY,
     cursor TEXT NOT NULL

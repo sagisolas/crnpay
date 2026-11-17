@@ -1,11 +1,14 @@
 import { serveStatic } from "@hono/node-server/serve-static";
-import { Hono } from "hono";
+import { Hono, type MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { streamSSE } from "hono/streaming";
 import { secureHeaders } from "hono/secure-headers";
 import type { Logger } from "pino";
 import { z } from "zod";
+import type { AlertEvent } from "../shared/alert.js";
 import { formatAmount, readAmount } from "../shared/amount.js";
 import type { PaymentInstructions } from "../shared/donation-api.js";
+import { createAlerts } from "./alerts.js";
 import type { ChainAdapters } from "./chain-adapter.js";
 import type { Clock } from "./clock.js";
 import type { Config, UniqueAmountToken } from "./config.js";
@@ -16,11 +19,20 @@ import { keyMatches } from "./secret-key.js";
 import type { Scheduler } from "./scheduler.js";
 import type { Db } from "./storage.js";
 import { createTestChain, TEST_TOKEN } from "./test-chain.js";
+import { AlertPage } from "./ui/alert-page.js";
 import { DonatePage, type DonateToken } from "./ui/donate-page.js";
 import { createI18n, I18nProvider } from "./ui/i18n.js";
 import { watchToken } from "./watcher.js";
 
 const MAX_BODY_BYTES = 16 * 1024;
+const PING_INTERVAL_MS = 25 * 1000;
+const SAMPLE_ALERT: AlertEvent = {
+  id: "sample",
+  nickname: null,
+  amount: "1",
+  symbol: TEST_TOKEN.symbol,
+  message: "Test Alert",
+};
 
 const createDonationBody = z.object({
   tokenId: z.string().max(64),
@@ -40,7 +52,7 @@ interface AppDeps {
   tailSteps?: number;
 }
 
-const donationIdSchema = z.uuid();
+const uuidSchema = z.uuid();
 
 const testPaymentBody = z.object({ amount: z.string().max(64) });
 
@@ -74,12 +86,18 @@ export function createApp({
       )
       .map((token) => [token.id, token]),
   );
+  const tokens = new Map<string, UniqueAmountToken>([
+    ...donatableTokens,
+    [TEST_TOKEN.id, TEST_TOKEN],
+  ]);
+  const alerts = createAlerts({ db, clock, logger, tokens });
   const donations = createDonations({
     db,
     clock,
     logger,
     tailSteps,
-    tokens: new Map<string, UniqueAmountToken>([...donatableTokens, [TEST_TOKEN.id, TEST_TOKEN]]),
+    tokens,
+    onAlert: alerts.publish,
   });
   const testChain = createTestChain();
   watchToken(
@@ -154,6 +172,44 @@ export function createApp({
     );
   });
 
+  const requireKey: MiddlewareHandler = (c, next) =>
+    isKeyed(c.req.query("key")) ? next() : Promise.resolve(c.notFound());
+  app.use("/alerts", requireKey);
+  app.use("/api/alerts/*", requireKey);
+
+  app.get("/alerts", (c) =>
+    c.html(<AlertPage sample={c.req.query("test") === undefined ? null : SAMPLE_ALERT} />),
+  );
+
+  app.get("/api/alerts/events", (c) =>
+    streamSSE(c, async (stream) => {
+      let writes = Promise.resolve();
+      const enqueue = (write: () => Promise<unknown>): void => {
+        writes = writes.then(write).then(() => undefined);
+      };
+      const disconnect = alerts.connect((alert) => {
+        enqueue(() => stream.writeSSE({ event: "alert", data: JSON.stringify(alert) }));
+      });
+      const ping = setInterval(() => {
+        enqueue(() => stream.write(": ping\n\n"));
+      }, PING_INTERVAL_MS);
+      await new Promise<void>((resolve) => {
+        stream.onAbort(resolve);
+      });
+      clearInterval(ping);
+      disconnect();
+    }),
+  );
+
+  app.post("/api/alerts/:id/shown", (c) => {
+    const id = uuidSchema.safeParse(c.req.param("id"));
+    if (!id.success) {
+      return c.notFound();
+    }
+    alerts.markShown(id.data);
+    return c.body(null, 204);
+  });
+
   app.post("/api/donations", async (c) => {
     const parsed = createDonationBody.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) {
@@ -188,7 +244,7 @@ export function createApp({
   });
 
   app.get("/api/donations/:id", (c) => {
-    const id = donationIdSchema.safeParse(c.req.param("id"));
+    const id = uuidSchema.safeParse(c.req.param("id"));
     const status = id.success ? donations.status(id.data) : undefined;
     if (!status) {
       return c.json({ error: "Not found" }, 404);

@@ -49,7 +49,7 @@ v1 Tokens: Bitcoin (on-chain), ETH, ERC-20 tokens on EVM networks, TRC-20 tokens
 23. As a Streamer, I want an Alert page I can add to OBS as a browser source, so that Donations appear on stream.
 24. As a Streamer, I want the Alert page reachable only by a secret link, so that nobody else can open my Alerts.
 25. As a Streamer, I want an Alert only after a Donation is Confirmed, so that I never announce money that later disappears.
-26. As a Streamer, I want each Alert to show the Nickname (or "Аноним"), the amount with its Token, and the message, in Russian, so that my audience sees who gave what.
+26. As a Streamer, I want each Alert to show the Nickname (or "Аноним"), the amount with its Token, and the message, so that my audience sees who gave what.
 27. As a Streamer, I want Alerts to play one at a time, oldest first, for 8 seconds each, so that simultaneous Donations do not overlap.
 28. As a Streamer, I want Alerts that arrived while OBS was closed to play when it opens, so that no paid message is lost.
 29. As a Streamer, I want Alerts older than 1 hour skipped on replay, so that yesterday's Donations do not appear on today's stream.
@@ -113,7 +113,7 @@ Donation ids are random UUIDs, the only handle a Donor has.
 
 - Donation page (server-rendered with Hono JSX, both locales), create-Donation endpoint returning Payment instructions, and a Donation status endpoint polled every 5 s by the payment screen.
 - Test Token: the donation page opened with the Alert key lists a built-in Test Token, and its payment screen can send test payments of any amount through an in-memory test chain (one confirmation per watcher tick, 2 needed). Without the key it does not exist (ADR-0008).
-- Alert page, Alert event stream, Alert shown acknowledgement and test Alert, all requiring the secret key from the query string, compared in constant time. The Alert page text is Russian only.
+- Alert page, Alert event stream, Alert shown acknowledgement and test Alert, all requiring the secret key from the query string, compared in constant time. The Alert page has no text of its own beyond the "Аноним" fallback.
 - All user text (message, Nickname) is rendered as text, never HTML, on both pages.
 - QR codes: `bitcoin:` and `monero:` payment URIs with amount; plain address for EVM and Tron.
 
@@ -139,7 +139,7 @@ Info level: Donation created (Token, amount), Payment seen, Donation Confirmed (
 - Lightning, Solana, and any chain not listed above.
 - Fiat amounts or price feeds.
 - A Donation history page or dashboard.
-- Configurable Alert look, sound, text-to-speech, or Alert page language other than Russian.
+- Configurable Alert look, sound or text-to-speech.
 - Message moderation or profanity filtering.
 - Refunds or any action that moves funds.
 - Cross-checking a second data provider.

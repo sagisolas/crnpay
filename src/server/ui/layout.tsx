@@ -2,7 +2,7 @@ import type { Child } from "hono/jsx";
 
 interface LayoutProps {
   title: string;
-  lang: string;
+  lang?: string;
   stylesheet: string;
   script: string;
   children: Child;

@@ -1,6 +1,7 @@
 import { ANONYMOUS } from "../../shared/alert.js";
 import type { DonatePageData, PageToken } from "../../shared/donation-api.js";
 import { AlertView } from "./alert.js";
+import { PageData } from "./page-data.js";
 import { Banner } from "./banner.js";
 import { Button } from "./button.js";
 import { ChipGroup } from "./chip-group.js";
@@ -17,10 +18,6 @@ interface DonatePageProps {
   streamerName: string;
   tokens: DonateToken[];
   testMode: boolean;
-}
-
-function scriptJson(value: unknown): string {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
 export function DonatePage({ streamerName, tokens, testMode }: DonatePageProps) {
@@ -190,11 +187,7 @@ export function DonatePage({ streamerName, tokens, testMode }: DonatePageProps) 
           </div>
         </aside>
       </main>
-      <script
-        type="application/json"
-        id="page-data"
-        dangerouslySetInnerHTML={{ __html: scriptJson(pageData) }}
-      />
+      <PageData value={pageData} />
     </Layout>
   );
 }

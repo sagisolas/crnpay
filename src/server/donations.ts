@@ -15,6 +15,7 @@ import {
   findTransfer,
   findUnpaidHeldDonation,
   heldAmounts,
+  insertAlert,
   insertDonation,
   insertTransfer,
   markConfirmed,
@@ -41,7 +42,7 @@ function pickRandom<T>(items: T[]): T | undefined {
 type TransferEvent =
   | { kind: "unmatched"; transfer: IncomingTransfer }
   | { kind: "seen"; donationId: string; transfer: IncomingTransfer }
-  | { kind: "confirmed"; donation: DonationView };
+  | { kind: "confirmed"; donation: DonationView; alertId: string };
 
 interface DonationsDeps {
   db: Db;
@@ -49,9 +50,10 @@ interface DonationsDeps {
   logger: Logger;
   tailSteps: number;
   tokens: ReadonlyMap<string, UniqueAmountToken>;
+  onAlert: (alertId: string) => void;
 }
 
-export function createDonations({ db, clock, logger, tailSteps, tokens }: DonationsDeps) {
+export function createDonations({ db, clock, logger, tailSteps, tokens, onAlert }: DonationsDeps) {
   const freeAmounts = (token: UniqueAmountToken, base: bigint): bigint[] => {
     const held = heldAmounts(db, token.id);
     return Array.from(
@@ -123,11 +125,22 @@ export function createDonations({ db, clock, logger, tailSteps, tokens }: Donati
     return { state: clock.now() >= donation.expiresAt ? "expired" : "waiting" };
   };
 
-  const confirmIfFinal = (token: UniqueAmountToken, donationId: string, confirmations: number) => {
-    if (confirmations < token.confirmations || !markConfirmed(db, donationId, clock.now())) {
-      return undefined;
+  const confirmIfFinal = (
+    token: UniqueAmountToken,
+    donationId: string,
+    confirmations: number,
+  ): TransferEvent[] => {
+    const now = clock.now();
+    if (confirmations < token.confirmations || !markConfirmed(db, donationId, now)) {
+      return [];
     }
-    return findDonation(db, donationId);
+    const donation = findDonation(db, donationId);
+    if (!donation) {
+      return [];
+    }
+    const alertId = randomUUID();
+    insertAlert(db, { id: alertId, donationId, createdAt: now });
+    return [{ kind: "confirmed", donation, alertId }];
   };
 
   const recordTransfers = (token: UniqueAmountToken, transfers: IncomingTransfer[]): void => {
@@ -146,8 +159,7 @@ export function createDonations({ db, clock, logger, tailSteps, tokens }: Donati
             return [];
           }
           updateTransferConfirmations(db, key, transfer.confirmations);
-          const confirmed = confirmIfFinal(token, known.donationId, transfer.confirmations);
-          return confirmed ? [{ kind: "confirmed", donation: confirmed }] : [];
+          return confirmIfFinal(token, known.donationId, transfer.confirmations);
         }
 
         const donationId =
@@ -168,10 +180,9 @@ export function createDonations({ db, clock, logger, tailSteps, tokens }: Donati
         if (!donationId) {
           return [{ kind: "unmatched", transfer }];
         }
-        const confirmed = confirmIfFinal(token, donationId, transfer.confirmations);
         return [
           { kind: "seen", donationId, transfer },
-          ...(confirmed ? [{ kind: "confirmed" as const, donation: confirmed }] : []),
+          ...confirmIfFinal(token, donationId, transfer.confirmations),
         ];
       }),
     )();
@@ -213,6 +224,7 @@ export function createDonations({ db, clock, logger, tailSteps, tokens }: Donati
         },
         "donation confirmed",
       );
+      onAlert(event.alertId);
     });
   };
 

@@ -66,7 +66,7 @@ Rules:
 - Its background is transparent and it sits centred in its frame.
 - The content is "Nickname — amount TOKEN", with the message below. The Nickname is in alert-name and everything else is white, with a dark outline or shadow so it reads over any video.
 - Sizes are relative to the frame width (container or viewport units), so the preview and the OBS source keep the same proportions.
-- With no Nickname it shows "Аноним". Alert text is always Russian.
+- With no Nickname it shows "Аноним". Apart from that, all Alert text comes from the Donation.
 - It plays one entrance animation and no sound.
 
 ## Motion

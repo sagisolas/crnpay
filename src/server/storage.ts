@@ -157,6 +157,53 @@ export function markConfirmed(db: Db, donationId: string, now: number): boolean 
   return result.changes > 0;
 }
 
+export function insertAlert(
+  db: Db,
+  alert: { id: string; donationId: string; createdAt: number },
+): void {
+  db.prepare(
+    "INSERT INTO alerts (id, donation_id, created_at) VALUES (@id, @donationId, @createdAt)",
+  ).run(alert);
+}
+
+export interface AlertRecord {
+  id: string;
+  tokenId: string;
+  amount: bigint;
+  nickname: string | null;
+  message: string;
+}
+
+type AlertRow = Omit<AlertRecord, "amount"> & { amount: string };
+
+const ALERT_COLUMNS = `a.id, d.token_id AS tokenId, d.amount, d.nickname, d.message
+  FROM alerts a JOIN donations d ON d.id = a.donation_id`;
+
+const toAlertRecord = (row: AlertRow): AlertRecord => ({ ...row, amount: BigInt(row.amount) });
+
+export function findAlert(db: Db, id: string): AlertRecord | undefined {
+  const row = db.prepare(`SELECT ${ALERT_COLUMNS} WHERE a.id = ?`).get(id) as AlertRow | undefined;
+  return row && toAlertRecord(row);
+}
+
+export function unshownAlerts(db: Db, createdAfter: number): AlertRecord[] {
+  const rows = db
+    .prepare(
+      `SELECT ${ALERT_COLUMNS}
+       WHERE a.shown_at IS NULL AND a.created_at > ?
+       ORDER BY a.created_at, a.rowid`,
+    )
+    .all(createdAfter) as AlertRow[];
+  return rows.map(toAlertRecord);
+}
+
+export function markAlertShown(db: Db, id: string, now: number): boolean {
+  const result = db
+    .prepare("UPDATE alerts SET shown_at = ? WHERE id = ? AND shown_at IS NULL")
+    .run(now, id);
+  return result.changes > 0;
+}
+
 export function readCursor(db: Db, tokenId: string): string | null {
   const cursor = db
     .prepare("SELECT cursor FROM chain_cursors WHERE token_id = ?")

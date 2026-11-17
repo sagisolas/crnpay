@@ -52,3 +52,25 @@
   color: color-mix(in srgb, var(--alert-text) 60%, transparent);
   font-style: italic;
 }
+
+.alert.is-in .alert-head {
+  animation: alert-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.alert.is-in .alert-msg {
+  animation: alert-rise 0.45s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes alert-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes alert-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1cqw);
+  }
+}
