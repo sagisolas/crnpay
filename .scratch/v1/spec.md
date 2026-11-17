@@ -112,6 +112,7 @@ Donation ids are random UUIDs, the only handle a Donor has.
 ### HTTP API and pages
 
 - Donation page (server-rendered with Hono JSX, both locales), create-Donation endpoint returning Payment instructions, and a Donation status endpoint polled every 5 s by the payment screen.
+- Test Token: the donation page opened with the Alert key lists a built-in Test Token, and its payment screen can send test payments of any amount through an in-memory test chain (one confirmation per watcher tick, 2 needed). Without the key it does not exist (ADR-0008).
 - Alert page, Alert event stream, Alert shown acknowledgement and test Alert, all requiring the secret key from the query string, compared in constant time. The Alert page text is Russian only.
 - All user text (message, Nickname) is rendered as text, never HTML, on both pages.
 - QR codes: `bitcoin:` and `monero:` payment URIs with amount; plain address for EVM and Tron.

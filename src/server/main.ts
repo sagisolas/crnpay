@@ -17,7 +17,15 @@ async function main(): Promise<void> {
   mkdirSync(dirname(env.DB_PATH), { recursive: true });
   const db = openDatabase(env.DB_PATH);
   const scheduler = createIntervalScheduler();
-  const app = createApp({ logger, config, db, clock: systemClock, scheduler, adapters: {} });
+  const app = createApp({
+    logger,
+    config,
+    db,
+    clock: systemClock,
+    alertKey: env.ALERT_KEY,
+    scheduler,
+    adapters: {},
+  });
 
   const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
     logger.info(

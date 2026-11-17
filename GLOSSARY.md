@@ -40,6 +40,10 @@ _Avoid_: paid, completed, settled
 The on-stream announcement of a Confirmed Donation.
 _Avoid_: notification, popup
 
+**Test Token**:
+A built-in Token on a fake network, available only with the Alert key, for the Streamer to try Donations and Alerts without money.
+_Avoid_: demo coin, sandbox
+
 **Alert page**:
 The page the Streamer adds to OBS as a browser source, where Alerts are shown.
 _Avoid_: overlay, widget

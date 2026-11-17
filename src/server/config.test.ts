@@ -36,6 +36,10 @@ describe("parseConfig", () => {
     expect(() => parseConfig(config([usdtOnTron, usdtOnTron]))).toThrow("token ids must be unique");
   });
 
+  it("reserves the Test Token id", () => {
+    expect(() => parseConfig(config([{ ...usdtOnTron, id: "test" }]))).toThrow("reserved");
+  });
+
   it("rejects a minimum with more decimals than the token", () => {
     expect(() => parseConfig(config([{ ...usdtOnTron, minimum: "0.0000001" }]))).toThrow(
       "more than 6 decimal places",

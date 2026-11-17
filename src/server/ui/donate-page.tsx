@@ -16,13 +16,14 @@ export interface DonateToken extends PageToken {
 interface DonatePageProps {
   streamerName: string;
   tokens: DonateToken[];
+  testMode: boolean;
 }
 
 function scriptJson(value: unknown): string {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export function DonatePage({ streamerName, tokens }: DonatePageProps) {
+export function DonatePage({ streamerName, tokens, testMode }: DonatePageProps) {
   const { locale, strings: t, phrase } = useI18n();
   const first = tokens[0];
   const pageData: DonatePageData = {
@@ -35,6 +36,7 @@ export function DonatePage({ streamerName, tokens }: DonatePageProps) {
       decimals,
       minimum,
     })),
+    testMode,
   };
 
   return (
@@ -147,6 +149,22 @@ export function DonatePage({ streamerName, tokens }: DonatePageProps) {
           <Banner tone="caution" id="pay-warning">
             <strong id="pay-warning-title" /> {t.exactWarningBody}
           </Banner>
+          {testMode && (
+            <div class="test-panel" id="test-panel" hidden>
+              <Field id="test-amount" label={t.testTitle} hint={t.testHint}>
+                <input
+                  class="input"
+                  id="test-amount"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  aria-describedby="test-amount-hint test-amount-error"
+                />
+              </Field>
+              <Button variant="secondary" id="test-send">
+                {t.testSend}
+              </Button>
+            </div>
+          )}
           <div class="status" id="pay-state" data-state="waiting">
             <span class="status-dot" aria-hidden="true" />
             <div>

@@ -224,6 +224,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+.test-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  border-top: 1.5px dashed var(--line);
+  padding-top: 10px;
+}
+
 @keyframes pulse {
   50% {
     opacity: 0.35;

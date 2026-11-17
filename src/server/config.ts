@@ -67,11 +67,19 @@ const configSchema = z
   .refine(({ tokens }) => new Set(tokens.map((token) => token.id)).size === tokens.length, {
     message: "token ids must be unique",
     path: ["tokens"],
+  })
+  .refine(({ tokens }) => tokens.every((token) => token.id !== "test"), {
+    message: 'token id "test" is reserved for the Test Token',
+    path: ["tokens"],
   });
 
 export type Config = z.infer<typeof configSchema>;
-export type Token = Config["tokens"][number];
-export type UniqueAmountToken = Extract<Token, { matching: "uniqueAmount" }>;
+type ConfigToken = Config["tokens"][number];
+type ConfigUniqueAmountToken = Extract<ConfigToken, { matching: "uniqueAmount" }>;
+export type TestToken = Omit<ConfigUniqueAmountToken, "chain"> & { chain: "test" };
+export type Token = ConfigToken | TestToken;
+export type UniqueAmountToken = ConfigUniqueAmountToken | TestToken;
+export type ConfigChain = ConfigToken["chain"];
 
 export function parseConfig(raw: unknown): Config {
   return configSchema.parse(raw);

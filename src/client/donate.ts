@@ -38,6 +38,9 @@ const query = (selector: string): HTMLElement => {
 };
 
 const data = JSON.parse(byId("page-data").textContent) as DonatePageData;
+const testKey = data.testMode ? new URLSearchParams(window.location.search).get("key") : null;
+const withKey = (path: string): string =>
+  testKey ? `${path}?key=${encodeURIComponent(testKey)}` : path;
 const phrase = (key: keyof Dictionary, values: Record<string, string | number> = {}): string =>
   formatMessage(data.locale, data.strings[key], values);
 
@@ -205,7 +208,37 @@ function watchStatus(id: string): void {
   schedule();
 }
 
-function showInstructions(instructions: PaymentInstructions): void {
+function showTestPanel(instructions: PaymentInstructions): void {
+  const amount = byId("test-amount") as HTMLInputElement;
+  const send = byId("test-send") as HTMLButtonElement;
+  const hint = byId("test-amount-hint");
+  const error = byId("test-amount-error");
+  amount.value = instructions.amount;
+  send.addEventListener("click", () => {
+    send.disabled = true;
+    error.textContent = "";
+    void fetch(withKey("/api/test-payments"), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ amount: normalizeAmount(amount.value) }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(String(response.status));
+        }
+        hint.textContent = phrase("testSent");
+      })
+      .catch(() => {
+        error.textContent = phrase("testFailed");
+      })
+      .finally(() => {
+        send.disabled = false;
+      });
+  });
+  byId("test-panel").hidden = false;
+}
+
+function showInstructions(instructions: PaymentInstructions, token: PageToken): void {
   byId("pay-network").textContent = instructions.networkName;
   byId("pay-amount").textContent = `${instructions.amount} ${instructions.symbol}`;
   byId("pay-address").textContent = instructions.address;
@@ -234,13 +267,16 @@ function showInstructions(instructions: PaymentInstructions): void {
 
   startCountdown(Date.parse(instructions.expiresAt));
   watchStatus(instructions.id);
+  if (data.testMode && token.id === "test") {
+    showTestPanel(instructions);
+  }
   byId("form-panel").hidden = true;
   byId("pay-panel").hidden = false;
   query("#pay-panel h2").focus();
 }
 
 async function submit(token: PageToken): Promise<void> {
-  const response = await fetch("/api/donations", {
+  const response = await fetch(withKey("/api/donations"), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -251,7 +287,7 @@ async function submit(token: PageToken): Promise<void> {
     }),
   });
   if (response.status === 201) {
-    showInstructions((await response.json()) as PaymentInstructions);
+    showInstructions((await response.json()) as PaymentInstructions, token);
     return;
   }
   if (response.status === 429) {

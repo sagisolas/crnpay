@@ -12,6 +12,7 @@ export interface DonatePageData {
   locale: string;
   strings: Dictionary;
   tokens: PageToken[];
+  testMode: boolean;
 }
 
 export interface PaymentInstructions {

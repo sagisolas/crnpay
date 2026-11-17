@@ -4,7 +4,7 @@ import { bodyLimit } from "hono/body-limit";
 import { secureHeaders } from "hono/secure-headers";
 import type { Logger } from "pino";
 import { z } from "zod";
-import { formatAmount } from "../shared/amount.js";
+import { formatAmount, readAmount } from "../shared/amount.js";
 import type { PaymentInstructions } from "../shared/donation-api.js";
 import type { ChainAdapters } from "./chain-adapter.js";
 import type { Clock } from "./clock.js";
@@ -12,8 +12,10 @@ import type { Config, UniqueAmountToken } from "./config.js";
 import { createDonations, DEFAULT_TAIL_STEPS } from "./donations.js";
 import { tokenIcon } from "./icons.js";
 import { qrDataUrl } from "./qr.js";
+import { keyMatches } from "./secret-key.js";
 import type { Scheduler } from "./scheduler.js";
 import type { Db } from "./storage.js";
+import { createTestChain, TEST_TOKEN } from "./test-chain.js";
 import { DonatePage, type DonateToken } from "./ui/donate-page.js";
 import { createI18n, I18nProvider } from "./ui/i18n.js";
 import { watchToken } from "./watcher.js";
@@ -32,6 +34,7 @@ interface AppDeps {
   config: Config;
   db: Db;
   clock: Clock;
+  alertKey: string;
   scheduler: Scheduler;
   adapters: ChainAdapters;
   tailSteps?: number;
@@ -39,11 +42,25 @@ interface AppDeps {
 
 const donationIdSchema = z.uuid();
 
+const testPaymentBody = z.object({ amount: z.string().max(64) });
+
+function toPageToken(token: UniqueAmountToken): DonateToken {
+  return {
+    id: token.id,
+    symbol: token.symbol,
+    networkName: token.networkName,
+    decimals: token.decimals,
+    minimum: formatAmount(token.minimum, token.decimals),
+    icon: tokenIcon(token.symbol),
+  };
+}
+
 export function createApp({
   logger,
   config,
   db,
   clock,
+  alertKey,
   scheduler,
   adapters,
   tailSteps = DEFAULT_TAIL_STEPS,
@@ -51,10 +68,28 @@ export function createApp({
   const app = new Hono();
   const donatableTokens = new Map(
     config.tokens
-      .filter((token): token is UniqueAmountToken => token.matching === "uniqueAmount")
+      .filter(
+        (token): token is Extract<typeof token, { matching: "uniqueAmount" }> =>
+          token.matching === "uniqueAmount",
+      )
       .map((token) => [token.id, token]),
   );
-  const donations = createDonations({ db, clock, logger, tailSteps, tokens: donatableTokens });
+  const donations = createDonations({
+    db,
+    clock,
+    logger,
+    tailSteps,
+    tokens: new Map<string, UniqueAmountToken>([...donatableTokens, [TEST_TOKEN.id, TEST_TOKEN]]),
+  });
+  const testChain = createTestChain();
+  watchToken(
+    { db, logger, scheduler, recordTransfers: donations.recordTransfers },
+    TEST_TOKEN,
+    testChain.adapter,
+  );
+  const isKeyed = (key: string | undefined): boolean => keyMatches(key, alertKey);
+  const tokenFor = (id: string, keyed: boolean): UniqueAmountToken | undefined =>
+    keyed && id === TEST_TOKEN.id ? TEST_TOKEN : donatableTokens.get(id);
   donatableTokens.forEach((token) => {
     const adapter = adapters[token.chain];
     if (!adapter) {
@@ -70,14 +105,7 @@ export function createApp({
       adapter,
     );
   });
-  const pageTokens: DonateToken[] = [...donatableTokens.values()].map((token) => ({
-    id: token.id,
-    symbol: token.symbol,
-    networkName: token.networkName,
-    decimals: token.decimals,
-    minimum: formatAmount(token.minimum, token.decimals),
-    icon: tokenIcon(token.symbol),
-  }));
+  const pageTokens = [...donatableTokens.values()].map(toPageToken);
 
   app.use(async (c, next) => {
     const startedAt = performance.now();
@@ -116,13 +144,15 @@ export function createApp({
     }),
   );
 
-  app.get("/", (c) =>
-    c.html(
+  app.get("/", (c) => {
+    const testMode = isKeyed(c.req.query("key"));
+    const tokens = testMode ? [...pageTokens, toPageToken(TEST_TOKEN)] : pageTokens;
+    return c.html(
       <I18nProvider value={createI18n("en")}>
-        <DonatePage streamerName={config.streamerName} tokens={pageTokens} />
+        <DonatePage streamerName={config.streamerName} tokens={tokens} testMode={testMode} />
       </I18nProvider>,
-    ),
-  );
+    );
+  });
 
   app.post("/api/donations", async (c) => {
     const parsed = createDonationBody.safeParse(await c.req.json().catch(() => null));
@@ -131,7 +161,7 @@ export function createApp({
       return c.json({ error: "invalid_request" }, 400);
     }
     const { tokenId, ...input } = parsed.data;
-    const token = donatableTokens.get(tokenId);
+    const token = tokenFor(tokenId, isKeyed(c.req.query("key")));
     if (!token) {
       logger.info({ reason: "unknown_token", tokenId }, "donation refused");
       return c.json({ error: "unknown_token" }, 422);
@@ -164,6 +194,20 @@ export function createApp({
       return c.json({ error: "Not found" }, 404);
     }
     return c.json(status);
+  });
+
+  app.post("/api/test-payments", async (c) => {
+    if (!isKeyed(c.req.query("key"))) {
+      return c.json({ error: "Not found" }, 404);
+    }
+    const parsed = testPaymentBody.safeParse(await c.req.json().catch(() => null));
+    const amount = parsed.success ? readAmount(parsed.data.amount, TEST_TOKEN.decimals) : null;
+    if (typeof amount !== "bigint" || amount <= 0n) {
+      return c.json({ error: "invalid_request" }, 400);
+    }
+    testChain.send(amount);
+    logger.info({ amount: formatAmount(amount, TEST_TOKEN.decimals) }, "test payment sent");
+    return c.json({ status: "sent" }, 202);
   });
 
   return app;

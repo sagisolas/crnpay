@@ -1,4 +1,4 @@
-import type { Token } from "./config.js";
+import type { ConfigChain, Token } from "./config.js";
 
 export interface IncomingTransfer {
   txId: string;
@@ -19,4 +19,4 @@ export interface ChainAdapter {
   incomingTransfers(token: Token, cursor: string | null): Promise<TransferPage>;
 }
 
-export type ChainAdapters = Partial<Record<Token["chain"], ChainAdapter>>;
+export type ChainAdapters = Partial<Record<ConfigChain, ChainAdapter>>;

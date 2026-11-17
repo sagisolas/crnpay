@@ -44,6 +44,10 @@ The payment screen is not saved anywhere; closing it loses it.
 - A transfer is matched once, when the service first sees it. A transfer that matched nothing never matches a Donation created later.
 - **Unique address**: the first Payment of at least the Token's minimum confirms the Donation, and its Alert shows the amount that actually arrived. Smaller transfers and any later transfers to that address lead to no Alert.
 
+## Test Token
+
+The Streamer can try the whole flow without money. Opening the donation page with the Alert key adds a **Test Token** on a Test network. Its Donations follow the same Lifecycle and Matching rules and lead to a real Alert. On its payment screen the Streamer sends a test payment of any amount; it gains one confirmation every 15 seconds and needs 2. Without the key the Test Token does not exist. See ADR-0008.
+
 ## Streamer's record
 
 There is no Donation history page. Each Confirmed Donation is written to the service log with its Token, amount, Nickname and message.

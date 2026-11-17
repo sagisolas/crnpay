@@ -5,6 +5,8 @@ import { createLogger } from "../logger.js";
 import { openDatabase, type Db } from "../storage.js";
 import { createFakeChain, createFakeClock, createFakeScheduler } from "./fakes.js";
 
+export const ALERT_KEY = "a1".repeat(32);
+
 export const usdtOnTron = {
   id: "usdt-tron",
   symbol: "USDT",
@@ -83,6 +85,7 @@ export function setupApp(
     config,
     db,
     clock,
+    alertKey: ALERT_KEY,
     scheduler,
     adapters: { evm: chain.adapter, tron: chain.adapter },
     ...(options.tailSteps === undefined ? {} : { tailSteps: options.tailSteps }),
@@ -94,8 +97,9 @@ export function setupApp(
 export function postDonation(
   app: ReturnType<typeof setupApp>["app"],
   body: Record<string, unknown>,
+  key?: string,
 ) {
-  return app.request("/api/donations", {
+  return app.request(key === undefined ? "/api/donations" : `/api/donations?key=${key}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
