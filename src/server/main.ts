@@ -7,6 +7,7 @@ import { systemClock } from "./clock.js";
 import { loadConfig } from "./config.js";
 import { parseEnv } from "./env.js";
 import { createLogger } from "./logger.js";
+import { createIntervalScheduler } from "./scheduler.js";
 import { openDatabase } from "./storage.js";
 
 async function main(): Promise<void> {
@@ -15,7 +16,8 @@ async function main(): Promise<void> {
   const config = await loadConfig(env.CONFIG_PATH);
   mkdirSync(dirname(env.DB_PATH), { recursive: true });
   const db = openDatabase(env.DB_PATH);
-  const app = createApp({ logger, config, db, clock: systemClock });
+  const scheduler = createIntervalScheduler();
+  const app = createApp({ logger, config, db, clock: systemClock, scheduler, adapters: {} });
 
   const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
     logger.info(
@@ -27,8 +29,10 @@ async function main(): Promise<void> {
   const shutdown = (signal: NodeJS.Signals): void => {
     logger.info({ signal }, "shutting down");
     server.close(() => {
-      db.close();
-      process.exit(0);
+      void scheduler.stopAll().then(() => {
+        db.close();
+        process.exit(0);
+      });
     });
   };
   process.once("SIGTERM", shutdown);

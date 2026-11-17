@@ -101,7 +101,7 @@ Each chain family implements one adapter behind a common interface: list incomin
 
 ### Storage
 
-SQLite through better-sqlite3 with plain SQL in one storage module; numbered SQL migrations applied at startup. Amounts are stored as decimal text of base units and handled only as bigint. Invariants enforced by the database:
+SQLite through better-sqlite3 with plain SQL in one storage module; numbered SQL migrations applied at startup. Until v1 is released there is only the initial migration: schema changes edit it instead of adding a new one, and a database from an older build is deleted, not upgraded. Amounts are stored as decimal text of base units and handled only as bigint. Invariants enforced by the database:
 
 - A chain transfer (network, transaction id, output or log index) matches at most one Donation.
 - No two held Donations of the same Token share an amount (unique amount) or an address (unique address). Held means Waiting or within the 24 h hold.

@@ -64,3 +64,113 @@ export function insertDonation(db: Db, donation: DonationRecord): void {
      VALUES (?, ?, ?, ?)`,
   ).run(donation.tokenId, donation.amount.toString(), donation.id, donation.heldUntil);
 }
+
+export interface DonationView {
+  id: string;
+  tokenId: string;
+  amount: bigint;
+  message: string;
+  nickname: string | null;
+  expiresAt: number;
+  confirmedAt: number | null;
+  paymentConfirmations: number | null;
+}
+
+type DonationViewRow = Omit<DonationView, "amount"> & { amount: string };
+
+export function findDonation(db: Db, id: string): DonationView | undefined {
+  const row = db
+    .prepare(
+      `SELECT d.id, d.token_id AS tokenId, d.amount, d.message, d.nickname,
+              d.expires_at AS expiresAt, d.confirmed_at AS confirmedAt,
+              t.confirmations AS paymentConfirmations
+       FROM donations d LEFT JOIN transfers t ON t.donation_id = d.id
+       WHERE d.id = ?`,
+    )
+    .get(id) as DonationViewRow | undefined;
+  return row && { ...row, amount: BigInt(row.amount) };
+}
+
+interface TransferKey {
+  network: string;
+  tokenId: string;
+  txId: string;
+  index: number;
+}
+
+export function findTransfer(
+  db: Db,
+  key: TransferKey,
+): { donationId: string | null; confirmations: number } | undefined {
+  return db
+    .prepare(
+      `SELECT donation_id AS donationId, confirmations FROM transfers
+       WHERE network = @network AND token_id = @tokenId AND tx_id = @txId AND output_index = @index`,
+    )
+    .get(key) as { donationId: string | null; confirmations: number } | undefined;
+}
+
+export function findUnpaidHeldDonation(
+  db: Db,
+  match: { tokenId: string; address: string; amount: bigint; now: number },
+): string | undefined {
+  return db
+    .prepare(
+      `SELECT d.id FROM held_amounts h JOIN donations d ON d.id = h.donation_id
+       WHERE h.token_id = @tokenId AND h.amount = @amount AND h.held_until > @now
+         AND d.address = @address
+         AND NOT EXISTS (SELECT 1 FROM transfers t WHERE t.donation_id = d.id)`,
+    )
+    .pluck()
+    .get({ ...match, amount: match.amount.toString() }) as string | undefined;
+}
+
+export function insertTransfer(
+  db: Db,
+  transfer: TransferKey & {
+    address: string;
+    amount: bigint;
+    confirmations: number;
+    seenAt: number;
+    donationId: string | null;
+  },
+): void {
+  db.prepare(
+    `INSERT INTO transfers
+       (network, tx_id, output_index, token_id, address, amount, confirmations, seen_at, donation_id)
+     VALUES
+       (@network, @txId, @index, @tokenId, @address, @amount, @confirmations, @seenAt, @donationId)`,
+  ).run({ ...transfer, amount: transfer.amount.toString() });
+}
+
+export function updateTransferConfirmations(db: Db, key: TransferKey, confirmations: number): void {
+  db.prepare(
+    `UPDATE transfers SET confirmations = @confirmations
+     WHERE network = @network AND token_id = @tokenId AND tx_id = @txId AND output_index = @index`,
+  ).run({ ...key, confirmations });
+}
+
+export function markConfirmed(db: Db, donationId: string, now: number): boolean {
+  const result = db
+    .prepare("UPDATE donations SET confirmed_at = ? WHERE id = ? AND confirmed_at IS NULL")
+    .run(now, donationId);
+  return result.changes > 0;
+}
+
+export function readCursor(db: Db, tokenId: string): string | null {
+  const cursor = db
+    .prepare("SELECT cursor FROM chain_cursors WHERE token_id = ?")
+    .pluck()
+    .get(tokenId) as string | undefined;
+  return cursor ?? null;
+}
+
+export function writeCursor(db: Db, tokenId: string, cursor: string | null): void {
+  if (cursor === null) {
+    return;
+  }
+  db.prepare(
+    `INSERT INTO chain_cursors (token_id, cursor) VALUES (?, ?)
+     ON CONFLICT (token_id) DO UPDATE SET cursor = excluded.cursor`,
+  ).run(tokenId, cursor);
+}

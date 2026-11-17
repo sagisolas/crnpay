@@ -10,11 +10,17 @@ import {
   type FieldErrors,
 } from "../shared/donation-input.js";
 import { ANONYMOUS } from "../shared/alert.js";
-import type { DonatePageData, PageToken, PaymentInstructions } from "../shared/donation-api.js";
+import type {
+  DonatePageData,
+  DonationStatus,
+  PageToken,
+  PaymentInstructions,
+} from "../shared/donation-api.js";
 import type { Dictionary } from "../shared/locale.js";
 import { formatMessage } from "../shared/i18n.js";
 
 const FIELDS = ["amount", "message", "nickname"] as const;
+const STATUS_POLL_MS = 5000;
 
 const byId = (id: string): HTMLElement => {
   const element = document.getElementById(id);
@@ -52,6 +58,7 @@ const preview = {
 
 let attempted = false;
 let sending = false;
+let payState: DonationStatus["state"] = "waiting";
 
 function selectedToken(): PageToken | undefined {
   const id = new FormData(form).get("tokenId");
@@ -139,13 +146,63 @@ function startCountdown(expiresAt: number): void {
   const tick = (): void => {
     const seconds = Math.max(0, Math.round((expiresAt - Date.now()) / 1000));
     const time = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-    status.textContent = phrase("waitingBody", { time });
-    if (seconds === 0) {
+    if (payState === "waiting") {
+      status.textContent = phrase("waitingBody", { time });
+    }
+    if (seconds === 0 || payState !== "waiting") {
       window.clearInterval(timer);
     }
   };
   const timer = window.setInterval(tick, 1000);
   tick();
+}
+
+function statusText(status: DonationStatus): [string, string] | null {
+  switch (status.state) {
+    case "waiting":
+      return null;
+    case "seen":
+      return [
+        phrase("seenTitle"),
+        phrase("seenBody", { confirmations: status.confirmations, required: status.required }),
+      ];
+    case "confirmed":
+      return [phrase("confirmedTitle"), phrase("confirmedBody")];
+    case "expired":
+      return [phrase("expiredTitle"), phrase("expiredBody")];
+  }
+}
+
+function showStatus(status: DonationStatus): void {
+  const text = statusText(status);
+  if (!text) {
+    return;
+  }
+  payState = status.state;
+  byId("pay-state").dataset["state"] = status.state;
+  byId("pay-status-title").textContent = text[0];
+  byId("pay-status").textContent = text[1];
+}
+
+function watchStatus(id: string): void {
+  const poll = async (): Promise<void> => {
+    const response = await fetch(`/api/donations/${encodeURIComponent(id)}`);
+    if (response.ok) {
+      showStatus((await response.json()) as DonationStatus);
+    }
+  };
+  const schedule = (): void => {
+    window.setTimeout(() => {
+      void poll()
+        .catch(() => undefined)
+        .finally(() => {
+          if (payState !== "confirmed") {
+            schedule();
+          }
+        });
+    }, STATUS_POLL_MS);
+  };
+  schedule();
 }
 
 function showInstructions(instructions: PaymentInstructions): void {
@@ -176,6 +233,7 @@ function showInstructions(instructions: PaymentInstructions): void {
   }
 
   startCountdown(Date.parse(instructions.expiresAt));
+  watchStatus(instructions.id);
   byId("form-panel").hidden = true;
   byId("pay-panel").hidden = false;
   query("#pay-panel h2").focus();

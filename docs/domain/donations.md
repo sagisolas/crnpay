@@ -41,6 +41,7 @@ The payment screen is not saved anywhere; closing it loses it.
 ## Matching rules
 
 - **Shared address, unique amount**: only a transfer of exactly the expected amount matches. Anything more or less matches no Donation: the money stays with the Streamer and no Alert is shown.
+- A transfer is matched once, when the service first sees it. A transfer that matched nothing never matches a Donation created later.
 - **Unique address**: the first Payment of at least the Token's minimum confirms the Donation, and its Alert shows the amount that actually arrived. Smaller transfers and any later transfers to that address lead to no Alert.
 
 ## Streamer's record

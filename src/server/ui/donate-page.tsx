@@ -147,10 +147,12 @@ export function DonatePage({ streamerName, tokens }: DonatePageProps) {
           <Banner tone="caution" id="pay-warning">
             <strong id="pay-warning-title" /> {t.exactWarningBody}
           </Banner>
-          <div class="status" data-state="waiting">
+          <div class="status" id="pay-state" data-state="waiting">
             <span class="status-dot" aria-hidden="true" />
             <div>
-              <p class="status-title">{t.waitingTitle}</p>
+              <p class="status-title" id="pay-status-title">
+                {t.waitingTitle}
+              </p>
               <p class="status-body" id="pay-status" />
             </div>
           </div>

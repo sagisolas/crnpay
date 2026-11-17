@@ -2,7 +2,8 @@ import { Writable } from "node:stream";
 import { createApp } from "../app.js";
 import { parseConfig } from "../config.js";
 import { createLogger } from "../logger.js";
-import { openDatabase } from "../storage.js";
+import { openDatabase, type Db } from "../storage.js";
+import { createFakeChain, createFakeClock, createFakeScheduler } from "./fakes.js";
 
 export const usdtOnTron = {
   id: "usdt-tron",
@@ -54,7 +55,13 @@ export const xmr = {
 };
 
 export function setupApp(
-  options: { tokens?: unknown[]; tailSteps?: number; streamerName?: string } = {},
+  options: {
+    tokens?: unknown[];
+    tailSteps?: number;
+    streamerName?: string;
+    db?: Db;
+    start?: string;
+  } = {},
 ) {
   const logLines: string[] = [];
   const destination = new Writable({
@@ -63,7 +70,10 @@ export function setupApp(
       callback();
     },
   });
-  const clock = { time: new Date("2026-11-20T12:00:00Z").getTime(), now: () => clock.time };
+  const clock = createFakeClock(options.start ?? "2026-11-20T12:00:00Z");
+  const { scheduler, advance } = createFakeScheduler(clock);
+  const chain = createFakeChain();
+  const db = options.db ?? openDatabase(":memory:");
   const config = parseConfig({
     streamerName: options.streamerName ?? "Matvey",
     tokens: options.tokens ?? [usdtOnTron, ethOnEthereum, btc],
@@ -71,15 +81,14 @@ export function setupApp(
   const app = createApp({
     logger: createLogger("debug", destination),
     config,
-    db: openDatabase(":memory:"),
+    db,
     clock,
+    scheduler,
+    adapters: { evm: chain.adapter, tron: chain.adapter },
     ...(options.tailSteps === undefined ? {} : { tailSteps: options.tailSteps }),
   });
 
-  const advance = (ms: number) => {
-    clock.time += ms;
-  };
-  return { app, advance, logLines };
+  return { app, advance, logLines, chain, db, clock };
 }
 
 export function postDonation(

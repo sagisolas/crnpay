@@ -23,3 +23,7 @@ export interface PaymentInstructions {
   qr: string;
   expiresAt: string;
 }
+
+export type DonationStatus =
+  | { state: "waiting" | "expired" | "confirmed" }
+  | { state: "seen"; confirmations: number; required: number };

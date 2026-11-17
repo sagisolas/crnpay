@@ -106,10 +106,10 @@ describe("POST /api/donations", () => {
       const { app, advance } = setupApp({ tailSteps: 1 });
       expect(await amountOf(await postDonation(app, valid))).toBe("10.0001");
 
-      advance(HOUR + 23 * HOUR);
+      await advance(HOUR + 23 * HOUR);
       expect((await postDonation(app, valid)).status).toBe(503);
 
-      advance(HOUR);
+      await advance(HOUR);
       expect(await amountOf(await postDonation(app, valid))).toBe("10.0001");
     });
 

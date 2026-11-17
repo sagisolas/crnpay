@@ -38,6 +38,14 @@ export const en = {
     "The last digits identify your donation, so any other amount or network can’t be matched.",
   waitingTitle: "Waiting for your payment",
   waitingBody: "These instructions are valid for {time}.",
+  seenTitle: "Payment seen, waiting for confirmation",
+  seenBody:
+    "{confirmations} of {required, plural, one {# confirmation} other {# confirmations}}. You can close this page; your message will still be shown.",
+  confirmedTitle: "Thank you, your donation is confirmed",
+  confirmedBody: "Your message is on its way to the stream.",
+  expiredTitle: "These instructions have expired",
+  expiredBody:
+    "If you already paid, don’t pay again. A payment that arrives within the next 24 hours will still be matched to your donation.",
 } as const;
 
 export type Dictionary = { [Key in keyof typeof en]: string };

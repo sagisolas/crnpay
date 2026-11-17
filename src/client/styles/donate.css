@@ -186,6 +186,32 @@
   animation: pulse 1.6s ease-in-out infinite;
 }
 
+.status[data-state="seen"] .status-dot {
+  background: var(--caution);
+  animation-duration: 1.2s;
+}
+
+.status[data-state="confirmed"] {
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: 12px 14px;
+  background: var(--final-bg);
+}
+
+.status[data-state="confirmed"] .status-dot {
+  background: var(--final);
+  animation: none;
+}
+
+.status[data-state="confirmed"] .status-title {
+  color: var(--final);
+}
+
+.status[data-state="expired"] .status-dot {
+  background: var(--error);
+  animation: none;
+}
+
 .status-title {
   margin: 0;
   font-weight: 600;
