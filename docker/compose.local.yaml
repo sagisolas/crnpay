@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    env_file: !override
+      - ../.env
+    volumes: !override
+      - ../config.json:/config/config.json:ro
+      - data:/data
+
+  caddy:
+    build:
+      context: ..
+      dockerfile: docker/Caddy.Dockerfile
+    env_file: !override
+      - ../.env

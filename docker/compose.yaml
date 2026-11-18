@@ -1,33 +1,27 @@
 services:
   app:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    image: crnpay:latest
     restart: unless-stopped
-    env_file: ../.env
+    env_file:
+      - ../.env
     environment:
       CONFIG_PATH: /config/config.json
       DB_PATH: /data/crnpay.db
     volumes:
-      - ../config.json:/config/config.json:ro
+      - /crnpay/config.json:/config/config.json:ro
       - data:/data
     read_only: true
     tmpfs:
       - /tmp
 
   caddy:
-    build:
-      context: ..
-      dockerfile: docker/Caddy.Dockerfile
+    image: caddy_ratelimit:latest
     restart: unless-stopped
-    environment:
-      DOMAIN: ${DOMAIN:?set DOMAIN in the environment}
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
     depends_on:
       - app
