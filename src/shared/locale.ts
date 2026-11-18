@@ -1,4 +1,5 @@
 export const en = {
+  languageLabel: "Language",
   pageTitle: "Donate to {name}",
   tagline: "Your message shows up on stream as soon as your payment is confirmed.",
   payWith: "Pay with",
@@ -54,3 +55,59 @@ export const en = {
 } as const;
 
 export type Dictionary = { [Key in keyof typeof en]: string };
+
+export const ru = {
+  languageLabel: "Язык",
+  pageTitle: "Поддержать {name}",
+  tagline: "Ваше сообщение появится на стриме, как только платёж подтвердится.",
+  payWith: "Чем платить",
+  amount: "Сумма",
+  minimum: "Минимум {amount}",
+  nickname: "Имя на стриме",
+  nicknameHint: "Необязательно",
+  message: "Сообщение",
+  messageHint: "Зачитаем на стриме",
+  messagePlaceholder: "Здесь появится ваше сообщение",
+  donate: "Задонатить",
+  donateAmount: "Задонатить {amount}",
+  donateNote: "Аккаунт не нужен. Вы получите адрес, чтобы заплатить из любого кошелька.",
+  previewCaption: "Как это выглядит на стриме",
+  live: "В эфире",
+  amountInvalid: "Введите сумму, например 0.05.",
+  amountTooManyDecimals: "{symbol} допускает не больше {decimals} знаков после запятой.",
+  amountBelowMinimum: "Введите хотя бы {minimum}.",
+  messageRequired: "Напишите сообщение для стрима.",
+  messageTooLong: "Сообщение — не длиннее {max} символов.",
+  nicknameTooLong: "Имя — не длиннее {max} символов.",
+  rateLimited:
+    "Вы создали несколько донатов за короткое время. Подождите пару минут и попробуйте снова.",
+  tokenUnavailable:
+    "{symbol} в сети {network} сейчас не принимает донаты. Попробуйте через пару минут или выберите другой вариант.",
+  requestFailed: "Донат не создан. Проверьте соединение и попробуйте снова.",
+  payTitle: "Отправьте платёж",
+  network: "Сеть:",
+  exactAmount: "Сумма",
+  address: "Адрес",
+  copyAmount: "Скопировать сумму",
+  copyAddress: "Скопировать адрес",
+  copied: "Скопировано",
+  qrAddressOnly: "В коде только адрес. Сумму введите сами.",
+  exactWarningTitle: "Отправьте ровно эту сумму в сети {network}.",
+  exactWarningBody:
+    "Последние цифры опознают ваш донат, поэтому другая сумма или сеть не совпадут.",
+  waitingTitle: "Ждём ваш платёж",
+  waitingBody: "Эти инструкции действуют ещё {time}.",
+  seenTitle: "Платёж замечен, ждём подтверждения",
+  seenBody:
+    "{confirmations} из {required, plural, one {# подтверждение} few {# подтверждения} many {# подтверждений} other {# подтверждения}}. Страницу можно закрыть — ваше сообщение всё равно покажут.",
+  confirmedTitle: "Спасибо, ваш донат подтверждён",
+  confirmedBody: "Ваше сообщение уже летит на стрим.",
+  testTitle: "Тестовый платёж",
+  testHint: "Отправляется в тестовой сети. Измените сумму, чтобы проверить несовпадение.",
+  testSend: "Отправить тестовый платёж",
+  testSent: "Отправлено. Следующая проверка подхватит его в течение 15 секунд.",
+  testFailed: "Тестовый платёж не отправлен. Проверьте сумму и попробуйте снова.",
+  expiredTitle: "Эти инструкции истекли",
+  expiredBody:
+    "Если вы уже заплатили, не платите снова. Платёж, пришедший в ближайшие 24 часа, всё равно будет сопоставлен с вашим донатом.",
+} satisfies Dictionary;

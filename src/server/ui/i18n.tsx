@@ -1,10 +1,16 @@
 import { createContext, useContext } from "hono/jsx";
 import { formatMessage, type MessageValues } from "../../shared/i18n.js";
-import { en, type Dictionary } from "../../shared/locale.js";
+import { en, ru, type Dictionary } from "../../shared/locale.js";
 
-const dictionaries = { en } satisfies Record<string, Dictionary>;
+const dictionaries = { en, ru } satisfies Record<string, Dictionary>;
 
-type Locale = keyof typeof dictionaries;
+export type Locale = keyof typeof dictionaries;
+
+export const LOCALES = Object.keys(dictionaries) as Locale[];
+
+export function isLocale(value: string | undefined): value is Locale {
+  return value !== undefined && value in dictionaries;
+}
 
 interface I18n {
   locale: Locale;

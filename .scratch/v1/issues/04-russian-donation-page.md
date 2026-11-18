@@ -6,11 +6,11 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] English and Russian dictionaries as typed objects; the compiler fails if either misses a key
-- [ ] Language picked from Accept-Language, falling back to English
-- [ ] EN/RU switch sets a cookie that overrides Accept-Language on later visits
-- [ ] Every Donor-facing text, including validation errors and status texts from 02 if present, comes from the dictionaries
-- [ ] Message and Nickname are shown as written, never translated
-- [ ] Tests through the HTTP app cover Accept-Language selection, fallback, and the cookie override
+- [x] English and Russian dictionaries as typed objects; the compiler fails if either misses a key
+- [x] Language picked from Accept-Language, falling back to English
+- [x] EN/RU switch sets a cookie that overrides Accept-Language on later visits
+- [x] Every Donor-facing text, including validation errors and status texts from 02 if present, comes from the dictionaries
+- [x] Message and Nickname are shown as written, never translated
+- [x] Tests through the HTTP app cover Accept-Language selection, fallback, and the cookie override

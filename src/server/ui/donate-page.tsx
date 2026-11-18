@@ -13,6 +13,7 @@ import { ChipGroup } from "./chip-group.js";
 import { Field } from "./field.js";
 import { useI18n } from "./i18n.js";
 import { Layout } from "./layout.js";
+import { LocaleSwitch } from "./locale-switch.js";
 import { PayPanel, type PayView } from "./pay-panel.js";
 
 export interface DonateToken extends PageToken {
@@ -24,6 +25,7 @@ interface DonatePageProps {
   tokens: DonateToken[];
   testMode: boolean;
   pay?: PayState | undefined;
+  keyParam?: string | undefined;
 }
 
 const TEST_TOKEN_ID = "test";
@@ -32,7 +34,7 @@ function mmss(seconds: number): string {
   return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-export function DonatePage({ streamerName, tokens, testMode, pay }: DonatePageProps) {
+export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: DonatePageProps) {
   const { locale, strings: t, phrase } = useI18n();
   const first = tokens[0];
 
@@ -99,6 +101,7 @@ export function DonatePage({ streamerName, tokens, testMode, pay }: DonatePagePr
             <h1>{streamerName}</h1>
             <p>{t.tagline}</p>
           </div>
+          <LocaleSwitch keyParam={keyParam} />
         </header>
 
         <section class="panel" id="form-panel" hidden={Boolean(pay)}>

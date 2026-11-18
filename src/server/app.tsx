@@ -22,6 +22,7 @@ import { createTestChain, TEST_TOKEN } from "./payments/test-chain.js";
 import { AlertPage } from "./ui/alert-page.js";
 import { DonatePage, type DonateToken } from "./ui/donate-page.js";
 import { createI18n, I18nProvider } from "./ui/i18n.js";
+import { resolveLocale } from "./ui/locale.js";
 import { watchToken } from "./payments/watcher.js";
 
 const MAX_BODY_BYTES = 16 * 1024;
@@ -180,11 +181,12 @@ export function createApp({
   app.get("/", (c) => {
     const testMode = isKeyed(c.req.query("key"));
     return c.html(
-      <I18nProvider value={createI18n("en")}>
+      <I18nProvider value={createI18n(resolveLocale(c))}>
         <DonatePage
           streamerName={config.streamerName}
           tokens={formTokens(testMode)}
           testMode={testMode}
+          keyParam={c.req.query("key")}
         />
       </I18nProvider>,
     );
@@ -206,12 +208,13 @@ export function createApp({
       expiresAt: donation.expiresAt,
     });
     return c.html(
-      <I18nProvider value={createI18n("en")}>
+      <I18nProvider value={createI18n(resolveLocale(c))}>
         <DonatePage
           streamerName={config.streamerName}
           tokens={formTokens(testMode)}
           testMode={testMode}
           pay={{ instructions, status, tokenId: token.id }}
+          keyParam={c.req.query("key")}
         />
       </I18nProvider>,
     );
