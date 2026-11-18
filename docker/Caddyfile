@@ -1,0 +1,21 @@
+{
+	order rate_limit before reverse_proxy
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	@create_donation {
+		method POST
+		path /api/donations
+	}
+	rate_limit @create_donation {
+		zone create_donation {
+			key {remote_host}
+			events 5
+			window 10m
+		}
+	}
+
+	reverse_proxy app:3000
+}

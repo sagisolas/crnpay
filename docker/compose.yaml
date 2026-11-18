@@ -1,20 +1,24 @@
 services:
   app:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     restart: unless-stopped
-    env_file: .env
+    env_file: ../.env
     environment:
       CONFIG_PATH: /config/config.json
       DB_PATH: /data/crnpay.db
     volumes:
-      - ./config.json:/config/config.json:ro
+      - ../config.json:/config/config.json:ro
       - data:/data
     read_only: true
     tmpfs:
       - /tmp
 
   caddy:
-    image: caddy:2-alpine
+    build:
+      context: ..
+      dockerfile: docker/Caddy.Dockerfile
     restart: unless-stopped
     environment:
       DOMAIN: ${DOMAIN:?set DOMAIN in the environment}
