@@ -4,3 +4,4 @@ data/
 .env
 config.json
 *.log
+.claude/launch.json
