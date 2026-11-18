@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ethOnEthereum, setupApp, usdtOnTron } from "./test-support/app.js";
+import { ethOnEthereum, setupApp, usdtOnTron } from "../test-support/app.js";
 
 async function page(options: Parameters<typeof setupApp>[0] = {}) {
   const { app } = setupApp(options);

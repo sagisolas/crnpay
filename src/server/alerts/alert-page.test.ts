@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { parseAmount } from "../shared/amount.js";
-import { ALERT_KEY, postDonation, setupApp, usdtOnTron } from "./test-support/app.js";
-import { openEventStream } from "./test-support/sse.js";
+import { parseAmount } from "../../shared/amount.js";
+import { ALERT_KEY, postDonation, setupApp, usdtOnTron } from "../test-support/app.js";
+import { openEventStream } from "../test-support/sse.js";
 
 const WRONG_KEY = "0".repeat(64);
 const TICK = 15 * 1000;

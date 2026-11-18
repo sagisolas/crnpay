@@ -1,5 +1,5 @@
-import type { ChainAdapter, IncomingTransfer } from "../chain-adapter.js";
-import type { Scheduler } from "../scheduler.js";
+import type { ChainAdapter, IncomingTransfer } from "../payments/chain-adapter.js";
+import type { Scheduler } from "../platform/scheduler.js";
 
 export function createFakeClock(start: string) {
   const clock = { time: new Date(start).getTime(), now: () => clock.time };

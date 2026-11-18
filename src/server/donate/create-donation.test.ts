@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { postDonation, setupApp, usdtOnTron } from "./test-support/app.js";
+import { postDonation, setupApp, usdtOnTron } from "../test-support/app.js";
 
 const valid = {
   tokenId: "usdt-tron",

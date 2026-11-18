@@ -1,8 +1,8 @@
 import type { Logger } from "pino";
 import type { ChainAdapter, IncomingTransfer } from "./chain-adapter.js";
-import type { UniqueAmountToken } from "./config.js";
-import type { Scheduler } from "./scheduler.js";
-import { readCursor, writeCursor, type Db } from "./storage.js";
+import type { UniqueAmountToken } from "../platform/config.js";
+import type { Scheduler } from "../platform/scheduler.js";
+import { readCursor, writeCursor, type Db } from "../platform/storage.js";
 
 const POLL_INTERVAL_MS = 15 * 1000;
 

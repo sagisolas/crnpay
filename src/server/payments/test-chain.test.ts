@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ALERT_KEY, postDonation, setupApp } from "./test-support/app.js";
+import { ALERT_KEY, postDonation, setupApp } from "../test-support/app.js";
 
 const TICK = 15 * 1000;
 const WRONG_KEY = "0".repeat(64);

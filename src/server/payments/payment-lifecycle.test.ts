@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseAmount } from "../shared/amount.js";
-import { ethOnEthereum, postDonation, setupApp, usdtOnTron } from "./test-support/app.js";
+import { parseAmount } from "../../shared/amount.js";
+import { ethOnEthereum, postDonation, setupApp, usdtOnTron } from "../test-support/app.js";
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;

@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { z } from "zod";
-import { parseAmount } from "../shared/amount.js";
+import { parseAmount } from "../../shared/amount.js";
 
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "must be lowercase kebab-case");
 

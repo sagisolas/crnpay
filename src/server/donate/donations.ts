@@ -1,15 +1,15 @@
 import { randomInt, randomUUID } from "node:crypto";
 import type { Logger } from "pino";
-import { formatAmount } from "../shared/amount.js";
+import { formatAmount } from "../../shared/amount.js";
 import {
   validateDonationInput,
   type DonationInput,
   type FieldErrors,
-} from "../shared/donation-input.js";
-import type { DonationStatus } from "../shared/donation-api.js";
-import type { IncomingTransfer } from "./chain-adapter.js";
-import type { Clock } from "./clock.js";
-import type { UniqueAmountToken } from "./config.js";
+} from "../../shared/donation-input.js";
+import type { DonationStatus } from "../../shared/donation-api.js";
+import type { IncomingTransfer } from "../payments/chain-adapter.js";
+import type { Clock } from "../platform/clock.js";
+import type { UniqueAmountToken } from "../platform/config.js";
 import {
   findDonation,
   findTransfer,
@@ -24,7 +24,7 @@ import {
   type Db,
   type DonationRecord,
   type DonationView,
-} from "./storage.js";
+} from "../platform/storage.js";
 
 const PAYMENT_WINDOW_MS = 60 * 60 * 1000;
 const LATE_PAYMENT_HOLD_MS = 24 * 60 * 60 * 1000;

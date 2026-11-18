@@ -1,4 +1,4 @@
-import type { ConfigChain, Token } from "./config.js";
+import type { ConfigChain, Token } from "../platform/config.js";
 
 export interface IncomingTransfer {
   txId: string;

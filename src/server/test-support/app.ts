@@ -1,8 +1,8 @@
 import { Writable } from "node:stream";
 import { createApp } from "../app.js";
-import { parseConfig } from "../config.js";
-import { createLogger } from "../logger.js";
-import { openDatabase, type Db } from "../storage.js";
+import { parseConfig } from "../platform/config.js";
+import { createLogger } from "../platform/logger.js";
+import { openDatabase, type Db } from "../platform/storage.js";
 import { createFakeChain, createFakeClock, createFakeScheduler } from "./fakes.js";
 
 export const ALERT_KEY = "a1".repeat(32);

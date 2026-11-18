@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { ChainAdapter, IncomingTransfer } from "./chain-adapter.js";
-import type { TestToken } from "./config.js";
+import type { TestToken } from "../platform/config.js";
 
 export const TEST_TOKEN: TestToken = {
   id: "test",

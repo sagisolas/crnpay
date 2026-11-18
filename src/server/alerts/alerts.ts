@@ -1,9 +1,15 @@
 import type { Logger } from "pino";
-import { formatAmount } from "../shared/amount.js";
-import type { AlertEvent } from "../shared/alert.js";
-import type { Clock } from "./clock.js";
-import type { UniqueAmountToken } from "./config.js";
-import { findAlert, markAlertShown, unshownAlerts, type AlertRecord, type Db } from "./storage.js";
+import { formatAmount } from "../../shared/amount.js";
+import type { AlertEvent } from "../../shared/alert.js";
+import type { Clock } from "../platform/clock.js";
+import type { UniqueAmountToken } from "../platform/config.js";
+import {
+  findAlert,
+  markAlertShown,
+  unshownAlerts,
+  type AlertRecord,
+  type Db,
+} from "../platform/storage.js";
 
 const REPLAY_WINDOW_MS = 60 * 60 * 1000;
 

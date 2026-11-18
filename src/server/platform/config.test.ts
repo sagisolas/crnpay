@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseConfig } from "./config.js";
-import { btc, usdtOnTron, xmr } from "./test-support/app.js";
+import { btc, usdtOnTron, xmr } from "../test-support/app.js";
 
 const config = (tokens: unknown[]) => ({ streamerName: "Matvey", tokens });
 
