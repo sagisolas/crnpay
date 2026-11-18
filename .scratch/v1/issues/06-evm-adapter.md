@@ -4,12 +4,12 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Config accepts EVM Tokens with chain id and, for ERC-20, the token contract address; native ETH has none; addresses validated as EVM addresses
-- [ ] Adapter lists incoming native transfers (including internal transfers from contract wallets) and ERC-20 transfers to the Streamer's address via a free provider (Etherscan V2 free tier or equivalent; check network coverage)
-- [ ] Only transfers from the configured contract count for an ERC-20 Token; same-named tokens from other contracts are ignored
-- [ ] Confirmations computed from the current block number
-- [ ] API key from the environment, validated at startup, never logged
-- [ ] Provider responses validated with zod; malformed responses rejected
-- [ ] Adapter tests use recorded provider responses with `fetch` stubbed
+- [x] Config accepts EVM Tokens with chain id and, for ERC-20, the token contract address; native ETH has none; addresses validated as EVM addresses
+- [x] Adapter lists incoming native transfers (including internal transfers from contract wallets) and ERC-20 transfers to the Streamer's address via a free provider (Etherscan V2 free tier or equivalent; check network coverage)
+- [x] Only transfers from the configured contract count for an ERC-20 Token; same-named tokens from other contracts are ignored
+- [x] Confirmations computed from the current block number
+- [x] API key from the environment, validated at startup, never logged
+- [x] Provider responses validated with zod; malformed responses rejected
+- [x] Adapter tests use recorded provider responses with `fetch` stubbed

@@ -1,22 +1,41 @@
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { serve } from "@hono/node-server";
+import type { Logger } from "pino";
 import { z } from "zod";
 import { createApp } from "./app.js";
+import type { ChainAdapters } from "./payments/chain-adapter.js";
+import { createEvmAdapter } from "./payments/evm-adapter.js";
 import { systemClock } from "./platform/clock.js";
-import { loadConfig } from "./platform/config.js";
+import { loadConfig, type Config } from "./platform/config.js";
 import { parseEnv } from "./platform/env.js";
 import { createLogger } from "./platform/logger.js";
 import { createIntervalScheduler } from "./platform/scheduler.js";
 import { openDatabase } from "./platform/storage.js";
 
+function buildAdapters(
+  tokens: Config["tokens"],
+  etherscanApiKey: string | undefined,
+  logger: Logger,
+): ChainAdapters {
+  const adapters: ChainAdapters = {};
+  if (tokens.some((token) => token.chain === "evm")) {
+    if (!etherscanApiKey) {
+      throw new Error("ETHERSCAN_API_KEY is required when EVM tokens are configured");
+    }
+    adapters.evm = createEvmAdapter({ apiKey: etherscanApiKey, logger });
+  }
+  return adapters;
+}
+
 async function main(): Promise<void> {
   const env = parseEnv(process.env);
   const logger = createLogger(env.LOG_LEVEL);
-  const config = await loadConfig(env.CONFIG_PATH);
+  const config = await loadConfig(env.CONFIG_PATH, env.DEFAULT_CONFIG_PATH);
   mkdirSync(dirname(env.DB_PATH), { recursive: true });
   const db = openDatabase(env.DB_PATH);
   const scheduler = createIntervalScheduler();
+  const adapters = buildAdapters(config.tokens, env.ETHERSCAN_API_KEY, logger);
   const app = createApp({
     logger,
     config,
@@ -24,7 +43,7 @@ async function main(): Promise<void> {
     clock: systemClock,
     alertKey: env.ALERT_KEY,
     scheduler,
-    adapters: {},
+    adapters,
   });
 
   const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {

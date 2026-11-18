@@ -4,6 +4,14 @@ import { parseAmount } from "../../shared/amount.js";
 
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "must be lowercase kebab-case");
 
+const evmAddress = z.string().regex(/^0x[0-9a-fA-F]{40}$/, "must be a 0x EVM address");
+
+const ZERO_EVM_ADDRESS = "0x0000000000000000000000000000000000000000";
+const ZERO_TRON_ADDRESS = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb";
+
+const isZeroAddress = (chain: "evm" | "tron", address: string): boolean =>
+  chain === "evm" ? address.toLowerCase() === ZERO_EVM_ADDRESS : address === ZERO_TRON_ADDRESS;
+
 const tokenFields = {
   id: slug,
   symbol: z.string().min(1).max(16),
@@ -22,7 +30,13 @@ const uniqueAmountFields = {
 
 const tokenSchema = z
   .discriminatedUnion("chain", [
-    z.strictObject({ ...uniqueAmountFields, chain: z.literal("evm") }),
+    z.strictObject({
+      ...uniqueAmountFields,
+      chain: z.literal("evm"),
+      address: evmAddress,
+      chainId: z.number().int().positive(),
+      contract: evmAddress.optional(),
+    }),
     z.strictObject({ ...uniqueAmountFields, chain: z.literal("tron") }),
     z.strictObject({ ...tokenFields, chain: z.literal("bitcoin"), xpub: z.string().min(1) }),
     z.strictObject({ ...tokenFields, chain: z.literal("monero") }),
@@ -54,6 +68,14 @@ const tokenSchema = z
     const minimum = toUnits("minimum", token.minimum);
     if (token.chain === "evm" || token.chain === "tron") {
       const amountTailStep = toUnits("amountTailStep", token.amountTailStep);
+      if (isZeroAddress(token.chain, token.address)) {
+        ctx.issues.push({
+          code: "custom",
+          path: ["address"],
+          message: "must be a real receiving address, not the zero address",
+          input: token.address,
+        });
+      }
       return { ...token, minimum, amountTailStep, matching: "uniqueAmount" as const };
     }
     return { ...token, minimum, matching: "uniqueAddress" as const };
@@ -85,7 +107,29 @@ export function parseConfig(raw: unknown): Config {
   return configSchema.parse(raw);
 }
 
-export async function loadConfig(path: string): Promise<Config> {
-  const text = await readFile(path, "utf8");
-  return parseConfig(JSON.parse(text));
+const rawConfigSchema = z.looseObject({
+  streamerName: z.unknown().optional(),
+  tokens: z.array(z.looseObject({ id: z.string().optional() })).default([]),
+});
+
+export function mergeConfig(defaults: unknown, overrides: unknown): unknown {
+  const base = rawConfigSchema.parse(defaults);
+  const user = rawConfigSchema.parse(overrides);
+  const defaultsById = new Map(
+    base.tokens.flatMap((token) => (token.id === undefined ? [] : [[token.id, token] as const])),
+  );
+  const tokens = user.tokens.map((token) => {
+    const fallback = token.id === undefined ? undefined : defaultsById.get(token.id);
+    return fallback ? { ...fallback, ...token } : token;
+  });
+  return { streamerName: user.streamerName ?? base.streamerName, tokens };
+}
+
+async function readJson(path: string): Promise<unknown> {
+  return JSON.parse(await readFile(path, "utf8"));
+}
+
+export async function loadConfig(path: string, defaultPath: string): Promise<Config> {
+  const [defaults, overrides] = await Promise.all([readJson(defaultPath), readJson(path)]);
+  return parseConfig(mergeConfig(defaults, overrides));
 }

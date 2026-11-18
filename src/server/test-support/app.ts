@@ -26,11 +26,27 @@ export const ethOnEthereum = {
   network: "ethereum",
   networkName: "Ethereum",
   chain: "evm",
+  chainId: 1,
   decimals: 18,
   minimum: "0.002",
   confirmations: 12,
   address: "0x7aE3c41F09b5D2e8a6C0f4B19d3E7A52c8F06b1D",
   amountTailStep: "0.000001",
+};
+
+export const usdtOnEthereum = {
+  id: "usdt-eth",
+  symbol: "USDT",
+  network: "ethereum",
+  networkName: "Ethereum",
+  chain: "evm",
+  chainId: 1,
+  contract: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+  decimals: 6,
+  minimum: "1",
+  confirmations: 12,
+  address: "0x7aE3c41F09b5D2e8a6C0f4B19d3E7A52c8F06b1D",
+  amountTailStep: "0.0001",
 };
 
 export const btc = {

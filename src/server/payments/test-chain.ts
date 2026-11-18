@@ -12,7 +12,7 @@ export const TEST_TOKEN: TestToken = {
   minimum: 10_000n,
   confirmations: 2,
   address: "test-address",
-  amountTailStep: 100n,
+  amountTailStep: 1n,
   matching: "uniqueAmount",
 };
 

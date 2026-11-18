@@ -9,6 +9,7 @@ describe("parseEnv", () => {
       PORT: 3000,
       ALERT_KEY,
       CONFIG_PATH: "./config.json",
+      DEFAULT_CONFIG_PATH: "./config.default.json",
       DB_PATH: "./data/crnpay.db",
       LOG_LEVEL: "info",
     });
@@ -16,6 +17,11 @@ describe("parseEnv", () => {
 
   it("parses the port", () => {
     expect(parseEnv({ ALERT_KEY, PORT: "8080" }).PORT).toBe(8080);
+  });
+
+  it("reads the optional Etherscan API key", () => {
+    expect(parseEnv({ ALERT_KEY }).ETHERSCAN_API_KEY).toBeUndefined();
+    expect(parseEnv({ ALERT_KEY, ETHERSCAN_API_KEY: "abc" }).ETHERSCAN_API_KEY).toBe("abc");
   });
 
   it.each([undefined, "", "short", "A".repeat(64), "g".repeat(64), "a".repeat(63)])(

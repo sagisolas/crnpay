@@ -34,7 +34,18 @@ Requires Node.js 26 and pnpm 11.
 ```bash
 pnpm install
 cp .env.example .env
-cp config.example.json config.json
+```
+
+Create a `config.json` with your streamer name and the Tokens you accept. You only list the Tokens you want (by `id`) and the fields specific to your deployment — the receiving `address` (or `xpub` for Bitcoin); everything else is inherited from `config.default.json`:
+
+```json
+{
+  "streamerName": "Your name",
+  "tokens": [
+    { "id": "eth", "address": "0xYourEthAddress" },
+    { "id": "usdt-tron", "address": "TYourTronAddress" }
+  ]
+}
 ```
 
 Set `ALERT_KEY` in `.env` to the output of `openssl rand -hex 32`, then:
@@ -55,7 +66,9 @@ pnpm dev
 
 ## Configuration
 
-Secrets and paths come from the environment (see `.env.example`). Tokens come from the JSON file at `CONFIG_PATH` (see `config.example.json`). The server refuses to start if either is invalid.
+On shared-address chains (EVM, Tron) a Donation's expected amount is the entered amount plus a small uniqueness tail of up to 9999 steps of `amountTailStep`, so keep that step tiny: the largest tail a Donor can be asked for is `9999 × amountTailStep`, which should be worth at most a cent or two (e.g. `0.000001` for a 6-decimal stablecoin). A step that is too large visibly inflates the amount the Donor must send.
+
+Secrets and paths come from the environment (see `.env.example`). Tokens are defined in two layers: `config.default.json` (committed) is a catalog of known Tokens with sensible defaults, and your config at `CONFIG_PATH` overrides it. The two are deep-merged by Token `id`: only the Tokens your config lists are active, and each inherits any field it doesn't set (symbol, decimals, chain id, contract, confirmations, minimum, tail step) from the default of the same `id`. `streamerName` falls back to the default when your config omits it. Set `DEFAULT_CONFIG_PATH` to point the catalog elsewhere. The server refuses to start if the merged config is invalid.
 
 A Token entry looks like this:
 

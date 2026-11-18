@@ -1,0 +1,44 @@
+{
+  "streamerName": "Your name",
+  "tokens": [
+    {
+      "id": "usdt-tron",
+      "symbol": "USDT",
+      "network": "tron",
+      "networkName": "Tron",
+      "chain": "tron",
+      "decimals": 6,
+      "minimum": "1",
+      "confirmations": 20,
+      "address": "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
+      "amountTailStep": "0.000001"
+    },
+    {
+      "id": "eth",
+      "symbol": "ETH",
+      "network": "ethereum",
+      "networkName": "Ethereum",
+      "chain": "evm",
+      "chainId": 1,
+      "decimals": 18,
+      "minimum": "0.002",
+      "confirmations": 12,
+      "address": "0x0000000000000000000000000000000000000000",
+      "amountTailStep": "0.000000001"
+    },
+    {
+      "id": "usdt-eth",
+      "symbol": "USDT",
+      "network": "ethereum",
+      "networkName": "Ethereum",
+      "chain": "evm",
+      "chainId": 1,
+      "contract": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "decimals": 6,
+      "minimum": "1",
+      "confirmations": 12,
+      "address": "0x0000000000000000000000000000000000000000",
+      "amountTailStep": "0.000001"
+    }
+  ]
+}
