@@ -13,6 +13,7 @@ export interface DonatePageData {
   strings: Dictionary;
   tokens: PageToken[];
   testMode: boolean;
+  pay?: PayState | undefined;
 }
 
 export interface PaymentInstructions {
@@ -28,3 +29,9 @@ export interface PaymentInstructions {
 export type DonationStatus =
   | { state: "waiting" | "expired" | "confirmed" }
   | { state: "seen"; confirmations: number; required: number };
+
+export interface PayState {
+  instructions: PaymentInstructions;
+  status: DonationStatus;
+  tokenId: string;
+}

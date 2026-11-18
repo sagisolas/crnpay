@@ -272,7 +272,6 @@ function showInstructions(instructions: PaymentInstructions, token: PageToken): 
   }
   byId("form-panel").hidden = true;
   byId("pay-panel").hidden = false;
-  query("#pay-panel h2").focus();
 }
 
 async function submit(token: PageToken): Promise<void> {
@@ -287,7 +286,8 @@ async function submit(token: PageToken): Promise<void> {
     }),
   });
   if (response.status === 201) {
-    showInstructions((await response.json()) as PaymentInstructions, token);
+    const instructions = (await response.json()) as PaymentInstructions;
+    window.location.assign(withKey(`/d/${encodeURIComponent(instructions.id)}`));
     return;
   }
   if (response.status === 429) {
@@ -341,4 +341,14 @@ form.addEventListener("submit", (event) => {
     });
 });
 
-render();
+const pay = data.pay;
+if (pay) {
+  payState = pay.status.state;
+  const token = data.tokens.find((candidate) => candidate.id === pay.tokenId);
+  if (token) {
+    showStatus(pay.status);
+    showInstructions(pay.instructions, token);
+  }
+} else {
+  render();
+}

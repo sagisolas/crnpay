@@ -1,14 +1,19 @@
 import { ANONYMOUS } from "../../shared/alert.js";
-import type { DonatePageData, PageToken } from "../../shared/donation-api.js";
+import type {
+  DonatePageData,
+  DonationStatus,
+  PageToken,
+  PayState,
+} from "../../shared/donation-api.js";
 import { AlertView } from "./alert.js";
 import { PageData } from "./page-data.js";
 import { Banner } from "./banner.js";
 import { Button } from "./button.js";
 import { ChipGroup } from "./chip-group.js";
-import { CopyButton } from "./copy-button.js";
 import { Field } from "./field.js";
 import { useI18n } from "./i18n.js";
 import { Layout } from "./layout.js";
+import { PayPanel, type PayView } from "./pay-panel.js";
 
 export interface DonateToken extends PageToken {
   icon: string | null;
@@ -18,11 +23,55 @@ interface DonatePageProps {
   streamerName: string;
   tokens: DonateToken[];
   testMode: boolean;
+  pay?: PayState | undefined;
 }
 
-export function DonatePage({ streamerName, tokens, testMode }: DonatePageProps) {
+const TEST_TOKEN_ID = "test";
+
+function mmss(seconds: number): string {
+  return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+export function DonatePage({ streamerName, tokens, testMode, pay }: DonatePageProps) {
   const { locale, strings: t, phrase } = useI18n();
   const first = tokens[0];
+
+  const statusView = (status: DonationStatus, expiresAt: string): PayView["status"] => {
+    switch (status.state) {
+      case "waiting": {
+        const seconds = Math.max(0, Math.round((Date.parse(expiresAt) - Date.now()) / 1000));
+        return {
+          state: "waiting",
+          title: t.waitingTitle,
+          body: phrase("waitingBody", { time: mmss(seconds) }),
+        };
+      }
+      case "seen":
+        return {
+          state: "seen",
+          title: t.seenTitle,
+          body: phrase("seenBody", {
+            confirmations: status.confirmations,
+            required: status.required,
+          }),
+        };
+      case "confirmed":
+        return { state: "confirmed", title: t.confirmedTitle, body: t.confirmedBody };
+      case "expired":
+        return { state: "expired", title: t.expiredTitle, body: t.expiredBody };
+    }
+  };
+
+  const payView: PayView | undefined = pay && {
+    networkName: pay.instructions.networkName,
+    amount: pay.instructions.amount,
+    symbol: pay.instructions.symbol,
+    address: pay.instructions.address,
+    qr: pay.instructions.qr,
+    isTest: pay.tokenId === TEST_TOKEN_ID,
+    status: statusView(pay.status, pay.instructions.expiresAt),
+  };
+
   const pageData: DonatePageData = {
     locale,
     strings: t,
@@ -34,6 +83,7 @@ export function DonatePage({ streamerName, tokens, testMode }: DonatePageProps) 
       minimum,
     })),
     testMode,
+    pay,
   };
 
   return (
@@ -51,7 +101,7 @@ export function DonatePage({ streamerName, tokens, testMode }: DonatePageProps) 
           </div>
         </header>
 
-        <section class="panel" id="form-panel">
+        <section class="panel" id="form-panel" hidden={Boolean(pay)}>
           <form id="donation-form" novalidate>
             <ChipGroup
               name="tokenId"
@@ -118,60 +168,7 @@ export function DonatePage({ streamerName, tokens, testMode }: DonatePageProps) 
           </form>
         </section>
 
-        <section class="panel pay" id="pay-panel" hidden aria-live="polite">
-          <h2 tabindex={-1}>{t.payTitle}</h2>
-          <p class="pay-net">
-            {t.network} <strong id="pay-network" />
-          </p>
-          <div class="pay-grid">
-            <div>
-              <div class="qr">
-                <img id="pay-qr" alt="" />
-              </div>
-              <p class="qr-note">{t.qrAddressOnly}</p>
-            </div>
-            <div>
-              <div class="copy-row">
-                <div class="value-label">{t.exactAmount}</div>
-                <p class="value value-amount" id="pay-amount" />
-                <CopyButton target="amount" label={t.copyAmount} />
-              </div>
-              <div class="copy-row">
-                <div class="value-label">{t.address}</div>
-                <p class="value" id="pay-address" />
-                <CopyButton target="address" label={t.copyAddress} />
-              </div>
-            </div>
-          </div>
-          <Banner tone="caution" id="pay-warning">
-            <strong id="pay-warning-title" /> {t.exactWarningBody}
-          </Banner>
-          {testMode && (
-            <div class="test-panel" id="test-panel" hidden>
-              <Field id="test-amount" label={t.testTitle} hint={t.testHint}>
-                <input
-                  class="input"
-                  id="test-amount"
-                  inputmode="decimal"
-                  autocomplete="off"
-                  aria-describedby="test-amount-hint test-amount-error"
-                />
-              </Field>
-              <Button variant="secondary" id="test-send">
-                {t.testSend}
-              </Button>
-            </div>
-          )}
-          <div class="status" id="pay-state" data-state="waiting">
-            <span class="status-dot" aria-hidden="true" />
-            <div>
-              <p class="status-title" id="pay-status-title">
-                {t.waitingTitle}
-              </p>
-              <p class="status-body" id="pay-status" />
-            </div>
-          </div>
-        </section>
+        <PayPanel testMode={testMode} view={payView} />
 
         <aside class="stage" aria-label={t.previewCaption}>
           <div class="screen">

@@ -124,6 +124,21 @@ export function createApp({
     );
   });
   const pageTokens = [...donatableTokens.values()].map(toPageToken);
+  const formTokens = (testMode: boolean): DonateToken[] =>
+    testMode ? [...pageTokens, toPageToken(TEST_TOKEN)] : pageTokens;
+
+  const buildInstructions = async (
+    token: UniqueAmountToken,
+    donation: { id: string; amount: bigint; address: string; expiresAt: number },
+  ): Promise<PaymentInstructions> => ({
+    id: donation.id,
+    symbol: token.symbol,
+    networkName: token.networkName,
+    address: donation.address,
+    amount: formatAmount(donation.amount, token.decimals),
+    qr: await qrDataUrl(donation.address),
+    expiresAt: new Date(donation.expiresAt).toISOString(),
+  });
 
   app.use(async (c, next) => {
     const startedAt = performance.now();
@@ -164,10 +179,40 @@ export function createApp({
 
   app.get("/", (c) => {
     const testMode = isKeyed(c.req.query("key"));
-    const tokens = testMode ? [...pageTokens, toPageToken(TEST_TOKEN)] : pageTokens;
     return c.html(
       <I18nProvider value={createI18n("en")}>
-        <DonatePage streamerName={config.streamerName} tokens={tokens} testMode={testMode} />
+        <DonatePage
+          streamerName={config.streamerName}
+          tokens={formTokens(testMode)}
+          testMode={testMode}
+        />
+      </I18nProvider>,
+    );
+  });
+
+  app.get("/d/:id", async (c) => {
+    const id = uuidSchema.safeParse(c.req.param("id"));
+    const testMode = isKeyed(c.req.query("key"));
+    const donation = id.success ? donations.find(id.data) : undefined;
+    const token = donation && tokenFor(donation.tokenId, testMode);
+    const status = donation && donations.status(donation.id);
+    if (!donation || !token || !status) {
+      return c.notFound();
+    }
+    const instructions = await buildInstructions(token, {
+      id: donation.id,
+      amount: donation.amount,
+      address: token.address,
+      expiresAt: donation.expiresAt,
+    });
+    return c.html(
+      <I18nProvider value={createI18n("en")}>
+        <DonatePage
+          streamerName={config.streamerName}
+          tokens={formTokens(testMode)}
+          testMode={testMode}
+          pay={{ instructions, status, tokenId: token.id }}
+        />
       </I18nProvider>,
     );
   });
@@ -230,17 +275,7 @@ export function createApp({
     if (!result.ok) {
       return c.json({ error: result.error }, 503);
     }
-    const { donation } = result;
-    const instructions: PaymentInstructions = {
-      id: donation.id,
-      symbol: token.symbol,
-      networkName: token.networkName,
-      address: donation.address,
-      amount: formatAmount(donation.amount, token.decimals),
-      qr: await qrDataUrl(donation.address),
-      expiresAt: new Date(donation.expiresAt).toISOString(),
-    };
-    return c.json(instructions, 201);
+    return c.json(await buildInstructions(token, result.donation), 201);
   });
 
   app.get("/api/donations/:id", (c) => {

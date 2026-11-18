@@ -228,5 +228,7 @@ export function createDonations({ db, clock, logger, tailSteps, tokens, onAlert 
     });
   };
 
-  return { create, status, recordTransfers };
+  const find = (id: string): DonationView | undefined => findDonation(db, id);
+
+  return { create, find, status, recordTransfers };
 }
