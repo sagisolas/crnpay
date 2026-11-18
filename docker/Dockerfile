@@ -21,10 +21,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json config.default.json ./
-COPY config.json /config/config.json
-COPY .env ./.env
 RUN mkdir -p /data && chown node:node /data
 USER node
 VOLUME /data
 EXPOSE 3000
-CMD ["node", "--env-file=/app/.env", "dist/server/main.js"]
+CMD ["node", "dist/server/main.js"]

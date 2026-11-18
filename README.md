@@ -96,6 +96,6 @@ cd docker
 DOMAIN=donate.example.com docker compose up -d --build
 ```
 
-`docker/compose.yaml` runs the app with a read-only filesystem, keeps SQLite in the `data` volume and puts Caddy in front for HTTPS. `config.json` and `.env` are baked into the image at build time (both must exist at the repo root when you build), so they stay read-only in the running container (ADR-0004). Rebuild to change the config or rotate `ALERT_KEY`. Because the image then contains those secrets and your receiving addresses, keep it local to the host — don't push it to a shared or public registry.
+`docker/compose.yaml` runs the app with a read-only filesystem, mounts `config.json` read-only (ADR-0004), keeps SQLite in the `data` volume and puts Caddy in front for HTTPS.
 
 Caddy also rate limits Donation creation: `POST /api/donations` is capped at 5 requests per client IP per 10 minutes, and over that Caddy answers 429 and the donation page shows a "try again later" message. All other routes are unlimited. The limit lives in Caddy, not the app (ADR-0005), so it needs the custom image built from `docker/Caddy.Dockerfile`, which adds the [`caddy-ratelimit`](https://github.com/mholt/caddy-ratelimit) plugin to stock Caddy. The `docker compose up --build` above builds it automatically. Running the app without this Caddy setup means running it without a rate limit.
