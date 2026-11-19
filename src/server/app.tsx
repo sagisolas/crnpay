@@ -13,6 +13,7 @@ import type { ChainAdapters } from "./payments/chain-adapter.js";
 import type { Clock } from "./platform/clock.js";
 import type { Config, Token } from "./platform/config.js";
 import { createDonations, DEFAULT_TAIL_STEPS } from "./donate/donations.js";
+import { rememberedToken, rememberToken } from "./donate/token-cookie.js";
 import { tokenIcon } from "./ui/icons.js";
 import { qrDataUrl } from "./ui/qr.js";
 import { keyMatches } from "./platform/secret-key.js";
@@ -213,6 +214,7 @@ export function createApp({
           tokens={formTokens(testMode)}
           testMode={testMode}
           keyParam={c.req.query("key")}
+          rememberedTokenId={rememberedToken(c)}
         />
       </I18nProvider>,
     );
@@ -299,6 +301,7 @@ export function createApp({
     if (!result.ok) {
       return c.json({ error: result.error }, 503);
     }
+    rememberToken(c, token.id);
     return c.json(await buildInstructions(token, result.donation), 201);
   });
 

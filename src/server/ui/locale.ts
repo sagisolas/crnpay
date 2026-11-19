@@ -3,7 +3,7 @@ import { getCookie, setCookie } from "hono/cookie";
 import { isLocale, type Locale } from "./i18n.js";
 
 const LANG_COOKIE = "lang";
-const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
+export const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 function fromAcceptLanguage(header: string | undefined): Locale {
   if (!header) {

@@ -26,6 +26,7 @@ interface DonatePageProps {
   testMode: boolean;
   pay?: PayState | undefined;
   keyParam?: string | undefined;
+  rememberedTokenId?: string | undefined;
 }
 
 const TEST_TOKEN_ID = "test";
@@ -34,9 +35,16 @@ function mmss(seconds: number): string {
   return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: DonatePageProps) {
+export function DonatePage({
+  streamerName,
+  tokens,
+  testMode,
+  pay,
+  keyParam,
+  rememberedTokenId,
+}: DonatePageProps) {
   const { locale, strings: t, phrase } = useI18n();
-  const first = tokens[0];
+  const selected = tokens.find((token) => token.id === rememberedTokenId) ?? tokens[0];
 
   const statusView = (status: DonationStatus, expiresAt: string): PayView["status"] => {
     switch (status.state) {
@@ -111,7 +119,7 @@ export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: Do
             <ChipGroup
               name="tokenId"
               legend={t.payWith}
-              selected={first?.id}
+              selected={selected?.id}
               options={tokens.map((token) => ({
                 value: token.id,
                 label: token.symbol,
@@ -124,9 +132,9 @@ export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: Do
                 id="amount"
                 label={t.amount}
                 hint={
-                  first
+                  selected
                     ? phrase("minimum", {
-                        amount: `${first.minimum} ${first.symbol}`,
+                        amount: `${selected.minimum} ${selected.symbol}`,
                       })
                     : ""
                 }
@@ -142,7 +150,7 @@ export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: Do
                     aria-describedby="amount-hint amount-error"
                   />
                   <span class="unit" id="amount-unit">
-                    {first?.symbol}
+                    {selected?.symbol}
                   </span>
                 </div>
               </Field>
@@ -166,7 +174,7 @@ export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: Do
               />
             </Field>
             <Banner tone="error" id="form-banner" hidden />
-            <Button variant="primary" type="submit" id="donate" disabled={!first}>
+            <Button variant="primary" type="submit" id="donate" disabled={!selected}>
               {t.donate}
             </Button>
             <p class="cta-note">{t.donateNote}</p>
@@ -181,8 +189,8 @@ export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: Do
             <p class="stage-caption">{t.previewCaption}</p>
             <AlertView
               nickname={ANONYMOUS}
-              amount={payView?.amount ?? first?.minimum ?? ""}
-              symbol={payView?.symbol ?? first?.symbol ?? ""}
+              amount={payView?.amount ?? selected?.minimum ?? ""}
+              symbol={payView?.symbol ?? selected?.symbol ?? ""}
               message={t.messagePlaceholder}
               placeholder
             />
