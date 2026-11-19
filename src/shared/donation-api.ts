@@ -1,5 +1,20 @@
 import type { Dictionary } from "./locale.js";
 
+type Matching = "uniqueAmount" | "uniqueAddress";
+
+export const PAYMENT_HINTS = {
+  uniqueAmount: {
+    qrNote: "qrAddressOnly",
+    warningTitle: "exactWarningTitle",
+    warningBody: "exactWarningBody",
+  },
+  uniqueAddress: {
+    qrNote: "qrWithAmount",
+    warningTitle: "minimumWarningTitle",
+    warningBody: "minimumWarningBody",
+  },
+} as const satisfies Record<Matching, Record<string, keyof Dictionary>>;
+
 export interface PageToken {
   id: string;
   symbol: string;
@@ -22,6 +37,8 @@ export interface PaymentInstructions {
   networkName: string;
   address: string;
   amount: string;
+  minimum: string;
+  matching: Matching;
   qr: string;
   expiresAt: string;
 }

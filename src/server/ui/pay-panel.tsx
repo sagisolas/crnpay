@@ -1,4 +1,8 @@
-import type { DonationStatus } from "../../shared/donation-api.js";
+import {
+  PAYMENT_HINTS,
+  type DonationStatus,
+  type PaymentInstructions,
+} from "../../shared/donation-api.js";
 import { Banner } from "./banner.js";
 import { Button } from "./button.js";
 import { CopyButton } from "./copy-button.js";
@@ -10,6 +14,8 @@ export interface PayView {
   amount: string;
   symbol: string;
   address: string;
+  minimum: string;
+  matching: PaymentInstructions["matching"];
   qr: string;
   isTest: boolean;
   status: { state: DonationStatus["state"]; title: string; body: string };
@@ -23,6 +29,7 @@ interface PayPanelProps {
 export function PayPanel({ testMode, view }: PayPanelProps) {
   const { strings: t, phrase } = useI18n();
   const state = view?.status.state ?? "waiting";
+  const hints = PAYMENT_HINTS[view?.matching ?? "uniqueAmount"];
 
   return (
     <section class="panel pay" id="pay-panel" hidden={!view} aria-live="polite">
@@ -35,7 +42,9 @@ export function PayPanel({ testMode, view }: PayPanelProps) {
           <div class="qr">
             <img id="pay-qr" src={view?.qr} alt={view?.address ?? ""} />
           </div>
-          <p class="qr-note">{t.qrAddressOnly}</p>
+          <p class="qr-note" id="pay-qr-note">
+            {t[hints.qrNote]}
+          </p>
         </div>
         <div>
           <div class="copy-row">
@@ -56,9 +65,13 @@ export function PayPanel({ testMode, view }: PayPanelProps) {
       </div>
       <Banner tone="caution" id="pay-warning">
         <strong id="pay-warning-title">
-          {view && phrase("exactWarningTitle", { network: view.networkName })}
+          {view &&
+            phrase(hints.warningTitle, {
+              network: view.networkName,
+              minimum: `${view.minimum} ${view.symbol}`,
+            })}
         </strong>{" "}
-        {t.exactWarningBody}
+        <span id="pay-warning-body">{t[hints.warningBody]}</span>
       </Banner>
       {testMode && (
         <div class="test-panel" id="test-panel" hidden={!view?.isTest}>

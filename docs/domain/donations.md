@@ -15,7 +15,7 @@
 
 ## Payment instructions
 
-After submitting, the Donor sees the address as a QR code with a copy button and the exact amount with a copy button. The QR code carries the amount where wallets read it reliably (Bitcoin, Monero); elsewhere it carries the address alone.
+After submitting, the Donor sees the address as a QR code with a copy button and the amount with a copy button. On a shared address the Donor is told to send exactly that amount; on a unique address, to send at least the Token's minimum. The QR code carries the amount where wallets read it reliably (Bitcoin, Monero); elsewhere it carries the address alone.
 
 Depending on the Token's network, either the address is unique to the Donation (Bitcoin, Monero), or the address is shared and the amount is made unique by a small tail (EVM, Tron). See ADR-0002.
 
@@ -24,7 +24,7 @@ The tail is 1 to 9999 steps of a per-Token step size, chosen so the tail is wort
 ## Lifecycle
 
 1. **Waiting for payment**: up to 60 minutes after submission.
-2. **Payment seen**: a matching transfer is on chain but not yet final.
+2. **Payment seen**: a matching transfer is in a block but not yet final.
 3. **Confirmed**: the Payment has reached the confirmation count set for its network.
 
 A Donation still waiting after 60 minutes is **Expired**, but a Payment that arrives within the following 24 hours still matches it and still leads to an Alert.
@@ -43,6 +43,9 @@ The payment screen is not saved anywhere; closing it loses it.
 - **Shared address, unique amount**: only a transfer of exactly the expected amount matches. Anything more or less matches no Donation: the money stays with the Streamer and no Alert is shown.
 - A transfer is matched once, when the service first sees it. A transfer that matched nothing never matches a Donation created later.
 - **Unique address**: the first Payment of at least the Token's minimum confirms the Donation, and its Alert shows the amount that actually arrived. Smaller transfers and any later transfers to that address lead to no Alert.
+- A transfer counts only once it is in a block. An unconfirmed transfer that is replaced or dropped never claims a Donation, so its replacement can still match.
+- When several transfers to one address are seen at once, the oldest is the first.
+- **Unique address reuse**: an address that never received anything is given to a new Donation once its old Donation is past the 24 h hold. An address that ever received funds is never reused. At most 20 unpaid addresses exist per Token, matching the gap limit wallets scan; beyond that the Token refuses new Donations with "try again later".
 
 ## Test Token
 

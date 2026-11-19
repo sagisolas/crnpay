@@ -20,6 +20,9 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.1.9",
+    "@noble/hashes": "^2.4.0",
+    "@scure/base": "^2.4.0",
+    "@scure/bip32": "^2.4.0",
     "better-sqlite3": "^13.2.0",
     "cryptocurrency-icons": "^0.18.1",
     "hono": "^4.13.19",

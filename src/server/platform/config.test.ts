@@ -110,12 +110,35 @@ describe("parseConfig", () => {
     expect(() => parseConfig(config([{ ...usdtOnTron, chain: "solana" }]))).toThrow();
   });
 
-  it("rejects an xpub on a unique-amount token", () => {
-    expect(() => parseConfig(config([{ ...usdtOnTron, xpub: "zpub" }]))).toThrow();
+  it("rejects a zpub on a unique-amount token", () => {
+    expect(() => parseConfig(config([{ ...usdtOnTron, zpub: btc.zpub }]))).toThrow();
   });
 
-  it("rejects a bitcoin token without an xpub", () => {
-    expect(() => parseConfig(config([{ ...btc, xpub: undefined }]))).toThrow();
+  it("rejects a bitcoin token without a zpub", () => {
+    expect(() => parseConfig(config([{ ...btc, zpub: undefined }]))).toThrow();
+  });
+
+  it.each([
+    ["a broken checksum", `${btc.zpub.slice(0, -1)}t`, "valid mainnet zpub"],
+    [
+      "an xpub",
+      "xpub6CatWdiZiodmUeTDp8LT5or8nmbKNcuyvz7WyksVFkKB4RHwCD3XyuvPEbvqAQY3rAPshWcMLoP2fMFMKHPJ4ZeZXYVUhLv1VMrjPC7PW6V",
+      "valid mainnet zpub",
+    ],
+    [
+      "a private zprv",
+      "zprvAdG4iTXWBoARxkkzNpNh8r6Qag3irQB8PzEMkAFeTRXxHpbF9z4QgEvBRmfvqWvGp42t42nvgGpNgYSJA9iefm1yYNZKEm7z6qUWCroSQnE",
+      "never a private key",
+    ],
+    [
+      "a master zpub",
+      "zpub6jftahH18ngZxLmXaKw3GSZzZsszmt9WqedkyZdezFtWRFBZqsQH5hyUmb4pCEeZGmVfQuP5bedXTB8is6fTv19U1GQRyQUKQGUTzyHACMF",
+      "account-level",
+    ],
+  ])("rejects %s as zpub without echoing it", (_name, zpub, message) => {
+    const parse = () => parseConfig(config([{ ...btc, zpub }]));
+    expect(parse).toThrow(message);
+    expect(parse).not.toThrow(zpub);
   });
 
   it("rejects unknown top-level fields", () => {
@@ -224,6 +247,28 @@ describe("loadConfig", () => {
       decimals: 18,
       address: ethOnEthereum.address,
     });
+  });
+
+  it("takes a Bitcoin Token from the catalog with only the user's zpub", async () => {
+    const userPath = join(tmpdir(), `crnpay-config-btc-${String(process.pid)}.json`);
+    writeFileSync(
+      userPath,
+      JSON.stringify({ streamerName: "Matvey", tokens: [{ id: "btc", zpub: btc.zpub }] }),
+    );
+    const config = await loadConfig(userPath, "./config.default.json");
+    expect(config.tokens[0]).toMatchObject({
+      id: "btc",
+      chain: "bitcoin",
+      decimals: 8,
+      minimum: 10_000n,
+      matching: "uniqueAddress",
+    });
+  });
+
+  it("rejects the catalog Bitcoin Token without a zpub", async () => {
+    const userPath = join(tmpdir(), `crnpay-config-btc-nozpub-${String(process.pid)}.json`);
+    writeFileSync(userPath, JSON.stringify({ streamerName: "Matvey", tokens: [{ id: "btc" }] }));
+    await expect(loadConfig(userPath, "./config.default.json")).rejects.toThrow();
   });
 
   it("rejects a user Token that does not override the default zero address", async () => {

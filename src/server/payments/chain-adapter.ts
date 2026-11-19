@@ -1,4 +1,4 @@
-import type { ConfigChain, Token } from "../platform/config.js";
+import type { Token, UniqueAddressToken } from "../platform/config.js";
 
 export interface IncomingTransfer {
   txId: string;
@@ -19,4 +19,19 @@ export interface ChainAdapter {
   incomingTransfers(token: Token, cursor: string | null): Promise<TransferPage>;
 }
 
-export type ChainAdapters = Partial<Record<ConfigChain, ChainAdapter>>;
+export interface UniqueAddressAdapter {
+  addressAt(token: UniqueAddressToken, index: number): Promise<string>;
+  isAddressUsed(token: UniqueAddressToken, address: string): Promise<boolean>;
+  incomingTransfers(
+    token: UniqueAddressToken,
+    addresses: readonly string[],
+    cursor: string | null,
+  ): Promise<TransferPage>;
+}
+
+export interface ChainAdapters {
+  evm?: ChainAdapter;
+  tron?: ChainAdapter;
+  bitcoin?: UniqueAddressAdapter;
+  monero?: UniqueAddressAdapter;
+}

@@ -58,7 +58,7 @@ export const btc = {
   decimals: 8,
   minimum: "0.0001",
   confirmations: 2,
-  xpub: "zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs",
+  zpub: "zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs",
 };
 
 export const xmr = {
@@ -103,7 +103,7 @@ export function setupApp(
     clock,
     alertKey: ALERT_KEY,
     scheduler,
-    adapters: { evm: chain.adapter, tron: chain.adapter },
+    adapters: { evm: chain.adapter, tron: chain.adapter, bitcoin: chain.addressAdapter },
     ...(options.tailSteps === undefined ? {} : { tailSteps: options.tailSteps }),
   });
 

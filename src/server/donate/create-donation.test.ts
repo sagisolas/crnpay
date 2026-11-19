@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { postDonation, setupApp, usdtOnTron } from "../test-support/app.js";
+import { postDonation, setupApp, usdtOnTron, xmr } from "../test-support/app.js";
 
 const valid = {
   tokenId: "usdt-tron",
@@ -63,8 +63,8 @@ describe("POST /api/donations", () => {
     expect(((await response.json()) as Instructions).amount).toBe("1.5001");
   });
 
-  it.each(["btc", "nope"])("refuses Token %j that cannot take Donations", async (tokenId) => {
-    const { app } = setupApp();
+  it.each(["xmr", "nope"])("refuses Token %j that cannot take Donations", async (tokenId) => {
+    const { app } = setupApp({ tokens: [usdtOnTron, xmr] });
     const response = await postDonation(app, { ...valid, tokenId });
     expect(response.status).toBe(422);
     expect(await response.json()).toEqual({ error: "unknown_token" });

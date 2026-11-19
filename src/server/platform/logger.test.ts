@@ -15,7 +15,7 @@ describe("createLogger", () => {
     logger.info({
       ALERT_KEY: "secret-1",
       env: { ALERT_KEY: "secret-2" },
-      token: { xpub: "secret-3" },
+      token: { zpub: "secret-3" },
     });
     const output = lines.join("");
     expect(output).not.toMatch(/secret-\d/);

@@ -1,4 +1,8 @@
-import type { ChainAdapter, IncomingTransfer } from "../payments/chain-adapter.js";
+import type {
+  ChainAdapter,
+  IncomingTransfer,
+  UniqueAddressAdapter,
+} from "../payments/chain-adapter.js";
 import type { Scheduler } from "../platform/scheduler.js";
 
 export function createFakeClock(start: string) {
@@ -51,6 +55,32 @@ export function createFakeChain() {
     },
   };
 
+  const usedAddresses = new Set<string>();
+
+  const addressAdapter: UniqueAddressAdapter = {
+    addressAt(token, index) {
+      return Promise.resolve(`${token.id}-address-${String(index)}`);
+    },
+    isAddressUsed(token, address) {
+      if (failure) {
+        return Promise.reject(failure);
+      }
+      const received = (transfers.get(token.id) ?? []).some((t) => t.address === address);
+      return Promise.resolve(received || usedAddresses.has(address));
+    },
+    incomingTransfers(token, addresses) {
+      if (failure) {
+        return Promise.reject(failure);
+      }
+      const list = (transfers.get(token.id) ?? []).filter((t) => addresses.includes(t.address));
+      return Promise.resolve({ transfers: list.map((t) => ({ ...t })), cursor: null });
+    },
+  };
+
+  const markUsed = (address: string): void => {
+    usedAddresses.add(address);
+  };
+
   const send = (tokenId: string, transfer: IncomingTransfer): void => {
     transfers.set(tokenId, [
       ...(transfers.get(tokenId) ?? []).filter(
@@ -64,5 +94,5 @@ export function createFakeChain() {
     failure = error;
   };
 
-  return { adapter, send, failWith };
+  return { adapter, addressAdapter, send, markUsed, failWith };
 }

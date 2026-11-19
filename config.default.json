@@ -39,6 +39,16 @@
       "confirmations": 12,
       "address": "0x0000000000000000000000000000000000000000",
       "amountTailStep": "0.000001"
+    },
+    {
+      "id": "btc",
+      "symbol": "BTC",
+      "network": "bitcoin",
+      "networkName": "Bitcoin",
+      "chain": "bitcoin",
+      "decimals": 8,
+      "minimum": "0.0001",
+      "confirmations": 2
     }
   ]
 }

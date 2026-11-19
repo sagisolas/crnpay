@@ -34,9 +34,13 @@ export const en = {
   copyAddress: "Copy address",
   copied: "Copied",
   qrAddressOnly: "The code holds the address only. Enter the amount yourself.",
+  qrWithAmount: "The code holds the address and the amount.",
   exactWarningTitle: "Send exactly this amount on {network}.",
   exactWarningBody:
     "The last digits identify your donation, so any other amount or network can’t be matched.",
+  minimumWarningTitle: "Send at least {minimum} on {network}.",
+  minimumWarningBody:
+    "This address is for your donation only. The first payment to it counts; later ones won’t be shown on stream.",
   waitingTitle: "Waiting for your payment",
   waitingBody: "These instructions are valid for {time}.",
   seenTitle: "Payment seen, waiting for confirmation",
@@ -92,9 +96,13 @@ export const ru = {
   copyAddress: "Скопировать адрес",
   copied: "Скопировано",
   qrAddressOnly: "В коде только адрес. Сумму введите сами.",
+  qrWithAmount: "В коде адрес и сумма.",
   exactWarningTitle: "Отправьте ровно эту сумму в сети {network}.",
   exactWarningBody:
     "Последние цифры опознают ваш донат, поэтому другая сумма или сеть не совпадут.",
+  minimumWarningTitle: "Отправьте не меньше {minimum} в сети {network}.",
+  minimumWarningBody:
+    "Этот адрес только для вашего доната. Засчитается первый платёж на него, следующие на стриме не покажут.",
   waitingTitle: "Ждём ваш платёж",
   waitingBody: "Эти инструкции действуют ещё {time}.",
   seenTitle: "Платёж замечен, ждём подтверждения",

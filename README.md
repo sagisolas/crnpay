@@ -36,14 +36,15 @@ pnpm install
 cp .env.example .env
 ```
 
-Create a `config.json` with your streamer name and the Tokens you accept. You only list the Tokens you want (by `id`) and the fields specific to your deployment — the receiving `address` (or `xpub` for Bitcoin); everything else is inherited from `config.default.json`:
+Create a `config.json` with your streamer name and the Tokens you accept. You only list the Tokens you want (by `id`) and the fields specific to your deployment — the receiving `address` (or `zpub` for Bitcoin); everything else is inherited from `config.default.json`:
 
 ```json
 {
   "streamerName": "Your name",
   "tokens": [
     { "id": "eth", "address": "0xYourEthAddress" },
-    { "id": "usdt-tron", "address": "TYourTronAddress" }
+    { "id": "usdt-tron", "address": "TYourTronAddress" },
+    { "id": "btc", "zpub": "zpub6r..." }
   ]
 }
 ```
@@ -85,7 +86,9 @@ A Token entry looks like this:
 }
 ```
 
-`matching` is `uniqueAmount` (shared `address`, unique amount per Donation) or `uniqueAddress` (per-Donation addresses derived from `xpub`). See ADR-0002.
+`matching` is `uniqueAmount` (shared `address`, unique amount per Donation) or `uniqueAddress` (per-Donation addresses derived from `zpub`). See ADR-0002.
+
+For Bitcoin, set `zpub` to your wallet's account-level native SegWit (BIP84) extended public key. Each Donation gets its own receive address; a never-paid address is reused after its 24 h hold, and every address is checked unused on mempool.space before it is handed out. Never put a `zprv` here, the server refuses it.
 
 ## Deployment
 

@@ -5,6 +5,7 @@ import type { Logger } from "pino";
 import { z } from "zod";
 import { createApp } from "./app.js";
 import type { ChainAdapters } from "./payments/chain-adapter.js";
+import { createBitcoinAdapter } from "./payments/bitcoin-adapter.js";
 import { createEvmAdapter } from "./payments/evm-adapter.js";
 import { systemClock } from "./platform/clock.js";
 import { loadConfig, type Config } from "./platform/config.js";
@@ -24,6 +25,9 @@ function buildAdapters(
       throw new Error("ETHERSCAN_API_KEY is required when EVM tokens are configured");
     }
     adapters.evm = createEvmAdapter({ apiKey: etherscanApiKey, logger });
+  }
+  if (tokens.some((token) => token.chain === "bitcoin")) {
+    adapters.bitcoin = createBitcoinAdapter({ logger });
   }
   return adapters;
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ethOnEthereum, setupApp, usdtOnTron } from "../test-support/app.js";
+import { btc, ethOnEthereum, setupApp, usdtOnTron, xmr } from "../test-support/app.js";
 
 async function page(options: Parameters<typeof setupApp>[0] = {}) {
   const { app } = setupApp(options);
@@ -16,13 +16,14 @@ describe("GET /", () => {
   });
 
   it("lists Tokens that can take Donations with asset, network and minimum", async () => {
-    const { html } = await page();
+    const { html } = await page({ tokens: [usdtOnTron, ethOnEthereum, btc, xmr] });
     expect(html).toContain('value="usdt-tron"');
     expect(html).toContain('value="eth"');
     expect(html).toMatch(/USDT<em>Tron<\/em>/);
     expect(html).toMatch(/ETH<em>Ethereum<\/em>/);
     expect(html).toContain("Minimum 1 USDT");
-    expect(html).not.toContain('value="btc"');
+    expect(html).toContain('value="btc"');
+    expect(html).not.toContain('value="xmr"');
   });
 
   it("shows the Token logo when one exists", async () => {

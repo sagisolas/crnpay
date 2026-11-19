@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import { parseAmount } from "../../shared/amount.js";
+import { parseZpub, walletFingerprint } from "../payments/bip84.js";
 
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "must be lowercase kebab-case");
 
@@ -38,7 +39,7 @@ const tokenSchema = z
       contract: evmAddress.optional(),
     }),
     z.strictObject({ ...uniqueAmountFields, chain: z.literal("tron") }),
-    z.strictObject({ ...tokenFields, chain: z.literal("bitcoin"), xpub: z.string().min(1) }),
+    z.strictObject({ ...tokenFields, chain: z.literal("bitcoin"), zpub: z.string().min(1) }),
     z.strictObject({ ...tokenFields, chain: z.literal("monero") }),
   ])
   .transform((token, ctx) => {
@@ -78,7 +79,25 @@ const tokenSchema = z
       }
       return { ...token, minimum, amountTailStep, matching: "uniqueAmount" as const };
     }
-    return { ...token, minimum, matching: "uniqueAddress" as const };
+    if (token.chain === "bitcoin") {
+      try {
+        parseZpub(token.zpub);
+      } catch (error) {
+        ctx.issues.push({
+          code: "custom",
+          path: ["zpub"],
+          message: error instanceof Error ? error.message : "invalid zpub",
+          input: "[redacted]",
+        });
+      }
+      return {
+        ...token,
+        minimum,
+        wallet: walletFingerprint(token.zpub),
+        matching: "uniqueAddress" as const,
+      };
+    }
+    return { ...token, minimum, wallet: token.id, matching: "uniqueAddress" as const };
   });
 
 const configSchema = z
@@ -101,7 +120,7 @@ type ConfigUniqueAmountToken = Extract<ConfigToken, { matching: "uniqueAmount" }
 export type TestToken = Omit<ConfigUniqueAmountToken, "chain"> & { chain: "test" };
 export type Token = ConfigToken | TestToken;
 export type UniqueAmountToken = ConfigUniqueAmountToken | TestToken;
-export type ConfigChain = ConfigToken["chain"];
+export type UniqueAddressToken = Extract<ConfigToken, { matching: "uniqueAddress" }>;
 
 export function parseConfig(raw: unknown): Config {
   return configSchema.parse(raw);

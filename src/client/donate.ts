@@ -10,11 +10,12 @@ import {
   type FieldErrors,
 } from "../shared/donation-input.js";
 import { ANONYMOUS } from "../shared/alert.js";
-import type {
-  DonatePageData,
-  DonationStatus,
-  PageToken,
-  PaymentInstructions,
+import {
+  PAYMENT_HINTS,
+  type DonatePageData,
+  type DonationStatus,
+  type PageToken,
+  type PaymentInstructions,
 } from "../shared/donation-api.js";
 import type { Dictionary } from "../shared/locale.js";
 import { formatMessage } from "../shared/i18n.js";
@@ -242,9 +243,13 @@ function showInstructions(instructions: PaymentInstructions, token: PageToken): 
   byId("pay-network").textContent = instructions.networkName;
   byId("pay-amount").textContent = `${instructions.amount} ${instructions.symbol}`;
   byId("pay-address").textContent = instructions.address;
-  byId("pay-warning-title").textContent = phrase("exactWarningTitle", {
+  const hints = PAYMENT_HINTS[instructions.matching];
+  byId("pay-qr-note").textContent = phrase(hints.qrNote);
+  byId("pay-warning-title").textContent = phrase(hints.warningTitle, {
     network: instructions.networkName,
+    minimum: `${instructions.minimum} ${instructions.symbol}`,
   });
+  byId("pay-warning-body").textContent = phrase(hints.warningBody);
   const qr = byId("pay-qr") as HTMLImageElement;
   qr.src = instructions.qr;
   qr.alt = instructions.address;

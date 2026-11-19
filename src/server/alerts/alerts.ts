@@ -2,7 +2,7 @@ import type { Logger } from "pino";
 import { formatAmount } from "../../shared/amount.js";
 import type { AlertEvent } from "../../shared/alert.js";
 import type { Clock } from "../platform/clock.js";
-import type { UniqueAmountToken } from "../platform/config.js";
+import type { Token } from "../platform/config.js";
 import {
   findAlert,
   markAlertShown,
@@ -19,7 +19,7 @@ interface AlertsDeps {
   db: Db;
   clock: Clock;
   logger: Logger;
-  tokens: ReadonlyMap<string, UniqueAmountToken>;
+  tokens: ReadonlyMap<string, Token>;
 }
 
 export function createAlerts({ db, clock, logger, tokens }: AlertsDeps) {

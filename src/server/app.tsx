@@ -11,13 +11,13 @@ import type { PaymentInstructions } from "../shared/donation-api.js";
 import { createAlerts } from "./alerts/alerts.js";
 import type { ChainAdapters } from "./payments/chain-adapter.js";
 import type { Clock } from "./platform/clock.js";
-import type { Config, UniqueAmountToken } from "./platform/config.js";
+import type { Config, Token } from "./platform/config.js";
 import { createDonations, DEFAULT_TAIL_STEPS } from "./donate/donations.js";
 import { tokenIcon } from "./ui/icons.js";
 import { qrDataUrl } from "./ui/qr.js";
 import { keyMatches } from "./platform/secret-key.js";
 import type { Scheduler } from "./platform/scheduler.js";
-import type { Db } from "./platform/storage.js";
+import { watchedAddresses, type Db } from "./platform/storage.js";
 import { createTestChain, TEST_TOKEN } from "./payments/test-chain.js";
 import { AlertPage } from "./ui/alert-page.js";
 import { DonatePage, type DonateToken } from "./ui/donate-page.js";
@@ -57,7 +57,7 @@ const uuidSchema = z.uuid();
 
 const testPaymentBody = z.object({ amount: z.string().max(64) });
 
-function toPageToken(token: UniqueAmountToken): DonateToken {
+function toPageToken(token: Token): DonateToken {
   return {
     id: token.id,
     symbol: token.symbol,
@@ -79,18 +79,40 @@ export function createApp({
   tailSteps = DEFAULT_TAIL_STEPS,
 }: AppDeps) {
   const app = new Hono();
+  type ConfigToken = Config["tokens"][number];
+  const pollerFor = (token: ConfigToken) => {
+    if (token.matching === "uniqueAmount") {
+      const adapter = adapters[token.chain];
+      return adapter && ((cursor: string | null) => adapter.incomingTransfers(token, cursor));
+    }
+    const adapter = adapters[token.chain];
+    return (
+      adapter &&
+      ((cursor: string | null) =>
+        adapter.incomingTransfers(token, watchedAddresses(db, token.id, clock.now()), cursor))
+    );
+  };
+  const pollers = new Map(
+    config.tokens.flatMap((token) => {
+      const poll = pollerFor(token);
+      if (poll) {
+        return [[token.id, poll] as const];
+      }
+      logger.warn(
+        { tokenId: token.id, chain: token.chain },
+        token.matching === "uniqueAmount"
+          ? "no chain adapter, payments not watched"
+          : "no chain adapter, token cannot take donations",
+      );
+      return [];
+    }),
+  );
   const donatableTokens = new Map(
     config.tokens
-      .filter(
-        (token): token is Extract<typeof token, { matching: "uniqueAmount" }> =>
-          token.matching === "uniqueAmount",
-      )
+      .filter((token) => token.matching === "uniqueAmount" || pollers.has(token.id))
       .map((token) => [token.id, token]),
   );
-  const tokens = new Map<string, UniqueAmountToken>([
-    ...donatableTokens,
-    [TEST_TOKEN.id, TEST_TOKEN],
-  ]);
+  const tokens = new Map<string, Token>([...donatableTokens, [TEST_TOKEN.id, TEST_TOKEN]]);
   const alerts = createAlerts({ db, clock, logger, tokens });
   const donations = createDonations({
     db,
@@ -98,48 +120,52 @@ export function createApp({
     logger,
     tailSteps,
     tokens,
+    adapters,
     onAlert: alerts.publish,
   });
   const testChain = createTestChain();
   watchToken(
     { db, logger, scheduler, recordTransfers: donations.recordTransfers },
     TEST_TOKEN,
-    testChain.adapter,
+    (cursor) => testChain.adapter.incomingTransfers(TEST_TOKEN, cursor),
   );
   const isKeyed = (key: string | undefined): boolean => keyMatches(key, alertKey);
-  const tokenFor = (id: string, keyed: boolean): UniqueAmountToken | undefined =>
+  const tokenFor = (id: string, keyed: boolean): Token | undefined =>
     keyed && id === TEST_TOKEN.id ? TEST_TOKEN : donatableTokens.get(id);
   donatableTokens.forEach((token) => {
-    const adapter = adapters[token.chain];
-    if (!adapter) {
-      logger.warn(
-        { tokenId: token.id, chain: token.chain },
-        "no chain adapter, payments not watched",
+    const poll = pollers.get(token.id);
+    if (poll) {
+      watchToken(
+        { db, logger, scheduler, recordTransfers: donations.recordTransfers },
+        token,
+        poll,
       );
-      return;
     }
-    watchToken(
-      { db, logger, scheduler, recordTransfers: donations.recordTransfers },
-      token,
-      adapter,
-    );
   });
   const pageTokens = [...donatableTokens.values()].map(toPageToken);
   const formTokens = (testMode: boolean): DonateToken[] =>
     testMode ? [...pageTokens, toPageToken(TEST_TOKEN)] : pageTokens;
 
+  const paymentUri = (token: Token, address: string, amount: string): string =>
+    token.chain === "bitcoin" ? `bitcoin:${address}?amount=${amount}` : address;
+
   const buildInstructions = async (
-    token: UniqueAmountToken,
+    token: Token,
     donation: { id: string; amount: bigint; address: string; expiresAt: number },
-  ): Promise<PaymentInstructions> => ({
-    id: donation.id,
-    symbol: token.symbol,
-    networkName: token.networkName,
-    address: donation.address,
-    amount: formatAmount(donation.amount, token.decimals),
-    qr: await qrDataUrl(donation.address),
-    expiresAt: new Date(donation.expiresAt).toISOString(),
-  });
+  ): Promise<PaymentInstructions> => {
+    const amount = formatAmount(donation.amount, token.decimals);
+    return {
+      id: donation.id,
+      symbol: token.symbol,
+      networkName: token.networkName,
+      address: donation.address,
+      amount,
+      minimum: formatAmount(token.minimum, token.decimals),
+      matching: token.matching,
+      qr: await qrDataUrl(paymentUri(token, donation.address, amount)),
+      expiresAt: new Date(donation.expiresAt).toISOString(),
+    };
+  };
 
   app.use(async (c, next) => {
     const startedAt = performance.now();
@@ -201,12 +227,7 @@ export function createApp({
     if (!donation || !token || !status) {
       return c.notFound();
     }
-    const instructions = await buildInstructions(token, {
-      id: donation.id,
-      amount: donation.amount,
-      address: token.address,
-      expiresAt: donation.expiresAt,
-    });
+    const instructions = await buildInstructions(token, donation);
     return c.html(
       <I18nProvider value={createI18n(resolveLocale(c))}>
         <DonatePage
@@ -270,7 +291,7 @@ export function createApp({
       logger.info({ reason: "unknown_token", tokenId }, "donation refused");
       return c.json({ error: "unknown_token" }, 422);
     }
-    const result = donations.create(token, input);
+    const result = await donations.create(token, input);
     if (!result.ok && result.error === "validation") {
       logger.info({ reason: result.error, tokenId, fields: result.fields }, "donation refused");
       return c.json({ error: result.error, fields: result.fields }, 422);

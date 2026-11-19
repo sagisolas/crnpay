@@ -69,6 +69,8 @@ export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: Do
     amount: pay.instructions.amount,
     symbol: pay.instructions.symbol,
     address: pay.instructions.address,
+    minimum: pay.instructions.minimum,
+    matching: pay.instructions.matching,
     qr: pay.instructions.qr,
     isTest: pay.tokenId === TEST_TOKEN_ID,
     status: statusView(pay.status, pay.instructions.expiresAt),

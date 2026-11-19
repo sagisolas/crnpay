@@ -20,6 +20,24 @@ export const migrations: readonly string[] = [
     PRIMARY KEY (token_id, amount)
   ) STRICT;
 
+  CREATE TABLE addresses (
+    token_id TEXT NOT NULL,
+    wallet TEXT NOT NULL,
+    address_index INTEGER NOT NULL,
+    address TEXT NOT NULL,
+    funded INTEGER NOT NULL DEFAULT 0 CHECK (funded IN (0, 1)),
+    PRIMARY KEY (token_id, wallet, address_index),
+    UNIQUE (token_id, address)
+  ) STRICT;
+
+  CREATE TABLE held_addresses (
+    token_id TEXT NOT NULL,
+    address TEXT NOT NULL,
+    donation_id TEXT NOT NULL UNIQUE REFERENCES donations (id),
+    held_until INTEGER NOT NULL,
+    PRIMARY KEY (token_id, address)
+  ) STRICT;
+
   CREATE TABLE transfers (
     network TEXT NOT NULL,
     tx_id TEXT NOT NULL,
