@@ -7,24 +7,31 @@ import { createApp } from "./app.js";
 import type { ChainAdapters } from "./payments/chain-adapter.js";
 import { createBitcoinAdapter } from "./payments/bitcoin-adapter.js";
 import { createEvmAdapter } from "./payments/evm-adapter.js";
+import { createTronAdapter } from "./payments/tron-adapter.js";
 import { systemClock } from "./platform/clock.js";
 import { loadConfig, type Config } from "./platform/config.js";
-import { parseEnv } from "./platform/env.js";
+import { parseEnv, type Env } from "./platform/env.js";
 import { createLogger } from "./platform/logger.js";
 import { createIntervalScheduler } from "./platform/scheduler.js";
 import { openDatabase } from "./platform/storage.js";
 
 function buildAdapters(
   tokens: Config["tokens"],
-  etherscanApiKey: string | undefined,
+  env: Pick<Env, "ETHERSCAN_API_KEY" | "TRONGRID_API_KEY">,
   logger: Logger,
 ): ChainAdapters {
   const adapters: ChainAdapters = {};
   if (tokens.some((token) => token.chain === "evm")) {
-    if (!etherscanApiKey) {
+    if (!env.ETHERSCAN_API_KEY) {
       throw new Error("ETHERSCAN_API_KEY is required when EVM tokens are configured");
     }
-    adapters.evm = createEvmAdapter({ apiKey: etherscanApiKey, logger });
+    adapters.evm = createEvmAdapter({ apiKey: env.ETHERSCAN_API_KEY, logger });
+  }
+  if (tokens.some((token) => token.chain === "tron")) {
+    if (!env.TRONGRID_API_KEY) {
+      throw new Error("TRONGRID_API_KEY is required when Tron tokens are configured");
+    }
+    adapters.tron = createTronAdapter({ apiKey: env.TRONGRID_API_KEY, logger });
   }
   if (tokens.some((token) => token.chain === "bitcoin")) {
     adapters.bitcoin = createBitcoinAdapter({ logger });
@@ -39,7 +46,7 @@ async function main(): Promise<void> {
   mkdirSync(dirname(env.DB_PATH), { recursive: true });
   const db = openDatabase(env.DB_PATH);
   const scheduler = createIntervalScheduler();
-  const adapters = buildAdapters(config.tokens, env.ETHERSCAN_API_KEY, logger);
+  const adapters = buildAdapters(config.tokens, env, logger);
   const app = createApp({
     logger,
     config,

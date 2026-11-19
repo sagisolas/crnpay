@@ -7,6 +7,7 @@
       "network": "tron",
       "networkName": "Tron",
       "chain": "tron",
+      "contract": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
       "decimals": 6,
       "minimum": "1",
       "confirmations": 20,

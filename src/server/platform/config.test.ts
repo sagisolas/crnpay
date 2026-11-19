@@ -95,6 +95,27 @@ describe("parseConfig", () => {
     expect(() => parseConfig(config([{ ...usdtOnEthereum, contract: "0xdead" }]))).toThrow();
   });
 
+  it("accepts a TRC-20 Tron token with a contract address", () => {
+    const [trc20] = parseConfig(config([usdtOnTron])).tokens;
+    expect(trc20).toMatchObject({ chain: "tron", contract: usdtOnTron.contract });
+  });
+
+  it("rejects a Tron token without a contract", () => {
+    expect(() => parseConfig(config([{ ...usdtOnTron, contract: undefined }]))).toThrow();
+  });
+
+  it.each([
+    "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSF",
+    "0x7aE3c41F09b5D2e8a6C0f4B19d3E7A52c8F06b1D",
+    "TQn9Y2khEsLJW1ChVWFMSMeRDow5Kcb",
+    "1BoatSLRHtKNngkdXEeobR76b53LETtpyT",
+  ])("rejects a Tron token whose address is %j", (address) => {
+    expect(() => parseConfig(config([{ ...usdtOnTron, address }]))).toThrow("Tron address");
+    expect(() => parseConfig(config([{ ...usdtOnTron, contract: address }]))).toThrow(
+      "Tron address",
+    );
+  });
+
   it("rejects the zero receiving address", () => {
     expect(() =>
       parseConfig(
@@ -172,6 +193,7 @@ describe("mergeConfig", () => {
         network: "tron",
         networkName: "Tron",
         chain: "tron",
+        contract: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
         decimals: 6,
         minimum: "1",
         confirmations: 20,

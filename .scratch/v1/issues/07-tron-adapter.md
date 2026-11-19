@@ -4,12 +4,12 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Config accepts TRC-20 Tokens with the token contract address; addresses validated as Tron addresses
-- [ ] Adapter lists incoming TRC-20 transfers to the Streamer's address via a free provider (TronGrid or equivalent)
-- [ ] Only transfers from the configured contract count
-- [ ] Confirmations computed from the current block number
-- [ ] API key from the environment, validated at startup, never logged
-- [ ] Provider responses validated with zod; malformed responses rejected
-- [ ] Adapter tests use recorded provider responses with `fetch` stubbed
+- [x] Config accepts TRC-20 Tokens with the token contract address; addresses validated as Tron addresses
+- [x] Adapter lists incoming TRC-20 transfers to the Streamer's address via a free provider (TronGrid or equivalent)
+- [x] Only transfers from the configured contract count
+- [x] Confirmations computed from the current block number
+- [x] API key from the environment, validated at startup, never logged
+- [x] Provider responses validated with zod; malformed responses rejected
+- [x] Adapter tests use recorded provider responses with `fetch` stubbed

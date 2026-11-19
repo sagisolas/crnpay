@@ -17,6 +17,7 @@ export const usdtOnTron = {
   minimum: "1",
   confirmations: 20,
   address: "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE",
+  contract: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
   amountTailStep: "0.0001",
 };
 

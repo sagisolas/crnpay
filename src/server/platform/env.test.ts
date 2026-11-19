@@ -24,6 +24,11 @@ describe("parseEnv", () => {
     expect(parseEnv({ ALERT_KEY, ETHERSCAN_API_KEY: "abc" }).ETHERSCAN_API_KEY).toBe("abc");
   });
 
+  it("reads the optional TronGrid API key", () => {
+    expect(parseEnv({ ALERT_KEY }).TRONGRID_API_KEY).toBeUndefined();
+    expect(parseEnv({ ALERT_KEY, TRONGRID_API_KEY: "abc" }).TRONGRID_API_KEY).toBe("abc");
+  });
+
   it.each([undefined, "", "short", "A".repeat(64), "g".repeat(64), "a".repeat(63)])(
     "rejects alert key %j",
     (key) => {

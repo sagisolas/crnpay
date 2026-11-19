@@ -1,4 +1,6 @@
 import { readFile } from "node:fs/promises";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { createBase58check } from "@scure/base";
 import { z } from "zod";
 import { parseAmount } from "../../shared/amount.js";
 import { parseZpub, walletFingerprint } from "../payments/bip84.js";
@@ -6,6 +8,20 @@ import { parseZpub, walletFingerprint } from "../payments/bip84.js";
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "must be lowercase kebab-case");
 
 const evmAddress = z.string().regex(/^0x[0-9a-fA-F]{40}$/, "must be a 0x EVM address");
+
+const base58check = createBase58check(sha256);
+const TRON_ADDRESS_PREFIX = 0x41;
+
+const isTronAddress = (value: string): boolean => {
+  try {
+    const bytes = base58check.decode(value);
+    return bytes.length === 21 && bytes[0] === TRON_ADDRESS_PREFIX;
+  } catch {
+    return false;
+  }
+};
+
+const tronAddress = z.string().refine(isTronAddress, "must be a base58 Tron address (T...)");
 
 const ZERO_EVM_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_TRON_ADDRESS = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb";
@@ -38,7 +54,12 @@ const tokenSchema = z
       chainId: z.number().int().positive(),
       contract: evmAddress.optional(),
     }),
-    z.strictObject({ ...uniqueAmountFields, chain: z.literal("tron") }),
+    z.strictObject({
+      ...uniqueAmountFields,
+      chain: z.literal("tron"),
+      address: tronAddress,
+      contract: tronAddress,
+    }),
     z.strictObject({ ...tokenFields, chain: z.literal("bitcoin"), zpub: z.string().min(1) }),
     z.strictObject({ ...tokenFields, chain: z.literal("monero") }),
   ])

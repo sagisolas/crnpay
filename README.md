@@ -88,6 +88,8 @@ A Token entry looks like this:
 
 `matching` is `uniqueAmount` (shared `address`, unique amount per Donation) or `uniqueAddress` (per-Donation addresses derived from `zpub`). See ADR-0002.
 
+For Tron, set `address` to your Tron receiving address (`T...`). A Tron Token is a TRC-20 token identified by its `contract` (the catalog's `usdt-tron` already sets the USDT contract), and only transfers from that contract count. Tron Tokens need `TRONGRID_API_KEY`. See ADR-0010.
+
 For Bitcoin, set `zpub` to your wallet's account-level native SegWit (BIP84) extended public key. Each Donation gets its own receive address; a never-paid address is reused after its 24 h hold, and every address is checked unused on mempool.space before it is handed out. Never put a `zprv` here, the server refuses it.
 
 ## Deployment

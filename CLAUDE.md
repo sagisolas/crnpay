@@ -8,6 +8,7 @@
 
 - Run tests after making non cosmetical changes
 - Run formatting before commit
+- Do not validate with real browser, leave it to user
 
 ## Style
 

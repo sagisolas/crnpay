@@ -6,6 +6,7 @@ const envSchema = z.object({
     .string()
     .regex(/^[0-9a-f]{64}$/, "must be 64 lowercase hex characters (openssl rand -hex 32)"),
   ETHERSCAN_API_KEY: z.string().min(1).optional(),
+  TRONGRID_API_KEY: z.string().min(1).optional(),
   CONFIG_PATH: z.string().min(1).default("./config.json"),
   DEFAULT_CONFIG_PATH: z.string().min(1).default("./config.default.json"),
   DB_PATH: z.string().min(1).default("./data/crnpay.db"),
