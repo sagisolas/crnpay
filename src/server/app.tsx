@@ -64,7 +64,7 @@ function toPageToken(token: Token): DonateToken {
     networkName: token.networkName,
     decimals: token.decimals,
     minimum: formatAmount(token.minimum, token.decimals),
-    icon: tokenIcon(token.symbol),
+    icon: tokenIcon(token),
   };
 }
 
@@ -162,7 +162,7 @@ export function createApp({
       amount,
       minimum: formatAmount(token.minimum, token.decimals),
       matching: token.matching,
-      qr: await qrDataUrl(paymentUri(token, donation.address, amount), tokenIcon(token.symbol)),
+      qr: await qrDataUrl(paymentUri(token, donation.address, amount), tokenIcon(token)),
       expiresAt: new Date(donation.expiresAt).toISOString(),
     };
   };

@@ -43,7 +43,10 @@ describe("Bitcoin Donation address", () => {
     expect(first.body).toMatchObject({ address: address(0), amount: "0.001" });
     expect(second.body).toMatchObject({ address: address(1), amount: "0.0025" });
     expect(first.body.qr).toBe(
-      await qrDataUrl(`bitcoin:${address(0)}?amount=0.001`, tokenIcon("BTC")),
+      await qrDataUrl(
+        `bitcoin:${address(0)}?amount=0.001`,
+        tokenIcon({ symbol: "BTC", network: "bitcoin" }),
+      ),
     );
   });
 
