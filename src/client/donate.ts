@@ -254,6 +254,7 @@ function showInstructions(instructions: PaymentInstructions, token: PageToken): 
   qr.src = instructions.qr;
   qr.alt = instructions.address;
   preview.amount.textContent = instructions.amount;
+  preview.symbol.textContent = instructions.symbol;
 
   for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
     button.addEventListener("click", () => {

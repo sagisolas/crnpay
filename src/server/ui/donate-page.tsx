@@ -181,8 +181,8 @@ export function DonatePage({ streamerName, tokens, testMode, pay, keyParam }: Do
             <p class="stage-caption">{t.previewCaption}</p>
             <AlertView
               nickname={ANONYMOUS}
-              amount={first?.minimum ?? ""}
-              symbol={first?.symbol ?? ""}
+              amount={payView?.amount ?? first?.minimum ?? ""}
+              symbol={payView?.symbol ?? first?.symbol ?? ""}
               message={t.messagePlaceholder}
               placeholder
             />

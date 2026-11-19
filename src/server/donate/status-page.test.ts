@@ -1,7 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { parseAmount } from "../../shared/amount.js";
-import { ALERT_KEY, postDonation, setupApp, usdtOnTron } from "../test-support/app.js";
+import {
+  ALERT_KEY,
+  btc,
+  ethOnEthereum,
+  postDonation,
+  setupApp,
+  usdtOnTron,
+} from "../test-support/app.js";
 
 const TICK = 15 * 1000;
 const input = { tokenId: "usdt-tron", amount: "10", message: "hi", nickname: "fox" };
@@ -31,6 +38,16 @@ describe("GET /d/:id", () => {
     expect(html).toContain(amount);
     expect(html).toMatch(/id="form-panel"[^>]*hidden/);
     expect(html).not.toMatch(/id="pay-panel"[^>]*hidden/);
+  });
+
+  it("previews the Alert with the Donation's own Token, not the first listed", async () => {
+    const { app } = setupApp({ tokens: [ethOnEthereum, btc] });
+    const { id } = await create(app, { ...input, tokenId: "btc", amount: "0.001" });
+    const html = await (await app.request(`/d/${id}`)).text();
+
+    const preview = /<aside class="stage".*<\/aside>/s.exec(html)?.[0] ?? "";
+    expect(preview).toMatch(/data-alert-amount="true">0\.001</);
+    expect(preview).toMatch(/data-alert-symbol="true">BTC</);
   });
 
   it("embeds the Donation's instructions and status in the page data", async () => {
