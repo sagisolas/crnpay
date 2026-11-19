@@ -139,6 +139,29 @@ describe("POST /api/donations", () => {
       expect((await postDonation(app, valid)).status).toBe(first === "10.0002" ? 503 : 201);
     });
 
+    it("refuses new Donations of a Token once it holds the limit, without affecting other Tokens", async () => {
+      const { app } = setupApp({ maxHeldDonations: 2 });
+      expect((await postDonation(app, valid)).status).toBe(201);
+      expect((await postDonation(app, { ...valid, amount: "20" })).status).toBe(201);
+
+      const refused = await postDonation(app, { ...valid, amount: "30" });
+      expect(refused.status).toBe(503);
+      expect(await refused.json()).toEqual({ error: "token_unavailable" });
+      expect((await postDonation(app, { ...valid, tokenId: "eth", amount: "0.01" })).status).toBe(
+        201,
+      );
+    });
+
+    it("takes Donations again once a held one is released", async () => {
+      const { app, advance } = setupApp({ maxHeldDonations: 1 });
+      expect((await postDonation(app, valid)).status).toBe(201);
+      await advance(HOUR + 23 * HOUR);
+      expect((await postDonation(app, valid)).status).toBe(503);
+
+      await advance(HOUR);
+      expect((await postDonation(app, valid)).status).toBe(201);
+    });
+
     it("holds tails per Token", async () => {
       const { app } = setupApp({ tailSteps: 1 });
       expect((await postDonation(app, valid)).status).toBe(201);

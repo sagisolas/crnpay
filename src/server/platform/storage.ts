@@ -38,6 +38,27 @@ export function releaseExpiredHolds(db: Db, tokenId: string, now: number): void 
   db.prepare("DELETE FROM held_addresses WHERE token_id = ? AND held_until <= ?").run(tokenId, now);
 }
 
+export function heldAmountCount(db: Db, tokenId: string): number {
+  return db
+    .prepare("SELECT COUNT(*) FROM held_amounts WHERE token_id = ?")
+    .pluck()
+    .get(tokenId) as number;
+}
+
+// A Donation without a hold can no longer be matched, so without a transfer it never will be paid.
+export function deleteNeverPaidDonations(db: Db, now: number): number {
+  db.prepare("DELETE FROM held_amounts WHERE held_until <= ?").run(now);
+  db.prepare("DELETE FROM held_addresses WHERE held_until <= ?").run(now);
+  return db
+    .prepare(
+      `DELETE FROM donations
+       WHERE NOT EXISTS (SELECT 1 FROM transfers t WHERE t.donation_id = donations.id)
+         AND NOT EXISTS (SELECT 1 FROM held_amounts h WHERE h.donation_id = donations.id)
+         AND NOT EXISTS (SELECT 1 FROM held_addresses h WHERE h.donation_id = donations.id)`,
+    )
+    .run().changes;
+}
+
 export function heldAmounts(db: Db, tokenId: string): Set<bigint> {
   const rows = db
     .prepare("SELECT amount FROM held_amounts WHERE token_id = ?")

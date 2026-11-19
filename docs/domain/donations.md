@@ -21,6 +21,8 @@ Depending on the Token's network, either the address is unique to the Donation (
 
 The tail is 1 to 9999 steps of a per-Token step size, chosen so the tail is worth at most cents. When every tail of a Token is held by another Donation, that Token refuses new Donations with "try again later".
 
+A Token on a shared address holds at most 100,000 Donations at once; beyond that it refuses new Donations with "try again later" until a hold ends (ADR-0011).
+
 ## Lifecycle
 
 1. **Waiting for payment**: up to 60 minutes after submission.
@@ -28,6 +30,8 @@ The tail is 1 to 9999 steps of a per-Token step size, chosen so the tail is wort
 3. **Confirmed**: the Payment has reached the confirmation count set for its network.
 
 A Donation still waiting after 60 minutes is **Expired**, but a Payment that arrives within the following 24 hours still matches it and still leads to an Alert.
+
+Once those 24 hours are over, a Donation that never received a Payment is forgotten within the hour: its payment screen and status answer Not Found. Donations with a Payment are kept.
 
 The payment screen shows each state to the Donor:
 

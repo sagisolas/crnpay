@@ -11,11 +11,13 @@ import type { ChainAdapters, IncomingTransfer } from "../payments/chain-adapter.
 import type { Clock } from "../platform/clock.js";
 import type { Token, UniqueAddressToken, UniqueAmountToken } from "../platform/config.js";
 import {
+  deleteNeverPaidDonations,
   findDonation,
   findTransfer,
   findUnpaidHeldByAddress,
   findUnpaidHeldByAmount,
   freeAddress,
+  heldAmountCount,
   heldAmounts,
   insertAddress,
   insertAlert,
@@ -35,6 +37,8 @@ import {
 const PAYMENT_WINDOW_MS = 60 * 60 * 1000;
 const LATE_PAYMENT_HOLD_MS = 24 * 60 * 60 * 1000;
 export const DEFAULT_TAIL_STEPS = 9999;
+// Bounds storage under Donation spam from many IPs: about 2 KB per Donation (ADR-0011).
+export const DEFAULT_MAX_HELD_DONATIONS = 100_000;
 const MAX_ADDRESS_ATTEMPTS = 10;
 // Standard wallets stop scanning after 20 unused addresses in a row (BIP44 gap limit).
 const ADDRESS_GAP_LIMIT = 20;
@@ -58,6 +62,7 @@ interface DonationsDeps {
   clock: Clock;
   logger: Logger;
   tailSteps: number;
+  maxHeldDonations: number;
   tokens: ReadonlyMap<string, Token>;
   adapters: ChainAdapters;
   onAlert: (alertId: string) => void;
@@ -70,6 +75,7 @@ export function createDonations({
   clock,
   logger,
   tailSteps,
+  maxHeldDonations,
   tokens,
   adapters,
   onAlert,
@@ -98,6 +104,10 @@ export function createDonations({
   const createWithAmount = (token: UniqueAmountToken, fields: DonationFields) =>
     db.transaction((): DonationRecord | null => {
       releaseExpiredHolds(db, token.id, clock.now());
+      if (heldAmountCount(db, token.id) >= maxHeldDonations) {
+        logger.warn({ tokenId: token.id }, "held donation limit reached, donation refused");
+        return null;
+      }
       const exact = pickRandom(freeAmounts(token, fields.amount));
       if (exact === undefined) {
         logger.warn({ tokenId: token.id }, "no free amount tail, donation refused");
@@ -329,5 +339,16 @@ export function createDonations({
 
   const find = (id: string): DonationView | undefined => findDonation(db, id);
 
-  return { create, find, status, recordTransfers };
+  const forgetNeverPaid = (): void => {
+    try {
+      const count = db.transaction(() => deleteNeverPaidDonations(db, clock.now()))();
+      if (count > 0) {
+        logger.info({ count }, "never-paid donations forgotten");
+      }
+    } catch (error) {
+      logger.error({ err: error }, "forgetting never-paid donations failed");
+    }
+  };
+
+  return { create, find, status, recordTransfers, forgetNeverPaid };
 }

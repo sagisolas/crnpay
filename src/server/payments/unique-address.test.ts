@@ -120,8 +120,19 @@ describe("Bitcoin Donation address", () => {
     pay(chain, late.body.address, MINIMUM, "too-late");
     await advance(TICK);
 
-    expect(await stateOf(app, late.body.id)).toBe("expired");
+    expect((await app.request(`/api/donations/${late.body.id}`)).status).toBe(404);
     expect((await donate(app)).body.address).toBe(address(1));
+  });
+
+  it("forgets a never-paid Donation after its hold and gives its address to the next one", async () => {
+    const { app, advance } = setupApp({ tokens: [btc] });
+    const unpaid = await donate(app);
+    await advance(25 * HOUR - TICK);
+    expect(await stateOf(app, unpaid.body.id)).toBe("expired");
+
+    await advance(TICK);
+    expect((await app.request(`/api/donations/${unpaid.body.id}`)).status).toBe(404);
+    expect((await donate(app)).body.address).toBe(address(0));
   });
 });
 

@@ -165,8 +165,31 @@ describe("Donation lifecycle", () => {
     await advance(25 * HOUR);
     chain.send("usdt-tron", payment(donation.amount, 20));
     await advance(TICK);
-    expect((await statusOf(app, donation.id)).body).toEqual({ state: "expired" });
+    expect((await statusOf(app, donation.id)).code).toBe(404);
     expect((await postDonation(app, donationInput)).status).toBe(201);
+  });
+
+  it("forgets a never-paid Donation once its 24 hour hold after expiry is over", async () => {
+    const { app, advance } = setupApp();
+    const donation = await donate(app);
+    await advance(25 * HOUR - TICK);
+    expect((await statusOf(app, donation.id)).body).toEqual({ state: "expired" });
+
+    await advance(TICK);
+    expect(await statusOf(app, donation.id)).toEqual({ code: 404, body: { error: "Not found" } });
+  });
+
+  it("keeps Donations that have a Payment, Confirmed or not", async () => {
+    const { app, advance, chain } = setupApp();
+    const confirmed = await donate(app);
+    const seen = await donate(app);
+    chain.send("usdt-tron", payment(confirmed.amount, 20, "confirmed"));
+    chain.send("usdt-tron", payment(seen.amount, 1, "seen"));
+    await advance(TICK);
+
+    await advance(48 * HOUR);
+    expect((await statusOf(app, confirmed.id)).body).toEqual({ state: "confirmed" });
+    expect((await statusOf(app, seen.id)).body).toMatchObject({ state: "seen" });
   });
 
   it("keeps Waiting Donations and their state through a restart", async () => {

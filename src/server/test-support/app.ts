@@ -77,6 +77,7 @@ export function setupApp(
   options: {
     tokens?: unknown[];
     tailSteps?: number;
+    maxHeldDonations?: number;
     streamerName?: string;
     db?: Db;
     start?: string;
@@ -106,6 +107,9 @@ export function setupApp(
     scheduler,
     adapters: { evm: chain.adapter, tron: chain.adapter, bitcoin: chain.addressAdapter },
     ...(options.tailSteps === undefined ? {} : { tailSteps: options.tailSteps }),
+    ...(options.maxHeldDonations === undefined
+      ? {}
+      : { maxHeldDonations: options.maxHeldDonations }),
   });
 
   return { app, advance, logLines, chain, db, clock };

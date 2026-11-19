@@ -12,7 +12,11 @@ import { createAlerts } from "./alerts/alerts.js";
 import type { ChainAdapters } from "./payments/chain-adapter.js";
 import type { Clock } from "./platform/clock.js";
 import type { Config, Token } from "./platform/config.js";
-import { createDonations, DEFAULT_TAIL_STEPS } from "./donate/donations.js";
+import {
+  createDonations,
+  DEFAULT_MAX_HELD_DONATIONS,
+  DEFAULT_TAIL_STEPS,
+} from "./donate/donations.js";
 import { rememberedToken, rememberToken } from "./donate/token-cookie.js";
 import { tokenIcon } from "./ui/icons.js";
 import { qrDataUrl } from "./ui/qr.js";
@@ -28,6 +32,7 @@ import { watchToken } from "./payments/watcher.js";
 
 const MAX_BODY_BYTES = 16 * 1024;
 const PING_INTERVAL_MS = 25 * 1000;
+const FORGET_INTERVAL_MS = 60 * 60 * 1000;
 const SAMPLE_ALERT: AlertEvent = {
   id: "sample",
   nickname: null,
@@ -52,6 +57,7 @@ interface AppDeps {
   scheduler: Scheduler;
   adapters: ChainAdapters;
   tailSteps?: number;
+  maxHeldDonations?: number;
 }
 
 const uuidSchema = z.uuid();
@@ -78,6 +84,7 @@ export function createApp({
   scheduler,
   adapters,
   tailSteps = DEFAULT_TAIL_STEPS,
+  maxHeldDonations = DEFAULT_MAX_HELD_DONATIONS,
 }: AppDeps) {
   const app = new Hono();
   type ConfigToken = Config["tokens"][number];
@@ -120,9 +127,14 @@ export function createApp({
     clock,
     logger,
     tailSteps,
+    maxHeldDonations,
     tokens,
     adapters,
     onAlert: alerts.publish,
+  });
+  scheduler.every(FORGET_INTERVAL_MS, () => {
+    donations.forgetNeverPaid();
+    return Promise.resolve();
   });
   const testChain = createTestChain();
   watchToken(
