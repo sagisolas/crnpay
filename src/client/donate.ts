@@ -60,7 +60,7 @@ const preview = {
   message: query("[data-alert-message]"),
 };
 
-let attempted = false;
+const touched = new Set<keyof FieldErrors>();
 let sending = false;
 let payState: DonationStatus["state"] = "waiting";
 
@@ -91,8 +91,12 @@ function errorText(field: keyof FieldErrors, code: string, token: PageToken): st
   return messages[`${field}.${code}`] ?? phrase("requestFailed");
 }
 
-function showErrors(errors: FieldErrors, token: PageToken): void {
-  for (const field of FIELDS) {
+function showErrors(
+  errors: FieldErrors,
+  token: PageToken,
+  fields: readonly (keyof FieldErrors)[] = FIELDS,
+): void {
+  for (const field of fields) {
     const code = errors[field];
     byId(`${field}-error`).textContent = code ? errorText(field, code, token) : "";
     inputs[field].setAttribute("aria-invalid", String(Boolean(code)));
@@ -139,10 +143,9 @@ function render(): void {
   preview.message.textContent = message || phrase("messagePlaceholder");
   preview.message.classList.toggle("is-empty", !message);
 
-  if (attempted) {
-    const result = validate(token);
-    showErrors(result.ok ? {} : result.errors, token);
-  }
+  const result = validate(token);
+  showErrors(result.ok ? {} : result.errors, token, [...touched]);
+  donateButton.disabled = sending || !result.ok;
 }
 
 function startCountdown(expiresAt: number): void {
@@ -217,6 +220,7 @@ function showTestPanel(instructions: PaymentInstructions): void {
   amount.value = instructions.amount;
   send.addEventListener("click", () => {
     send.disabled = true;
+    send.setAttribute("aria-busy", "true");
     error.textContent = "";
     void fetch(withKey("/api/test-payments"), {
       method: "POST",
@@ -234,6 +238,7 @@ function showTestPanel(instructions: PaymentInstructions): void {
       })
       .finally(() => {
         send.disabled = false;
+        send.removeAttribute("aria-busy");
       });
   });
   byId("test-panel").hidden = false;
@@ -282,7 +287,7 @@ function showInstructions(instructions: PaymentInstructions, token: PageToken): 
   byId("pay-panel").hidden = false;
 }
 
-async function submit(token: PageToken): Promise<void> {
+async function submit(token: PageToken): Promise<boolean> {
   const response = await fetch(withKey("/api/donations"), {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -296,27 +301,32 @@ async function submit(token: PageToken): Promise<void> {
   if (response.status === 201) {
     const instructions = (await response.json()) as PaymentInstructions;
     window.location.assign(withKey(`/d/${encodeURIComponent(instructions.id)}`));
-    return;
+    return true;
   }
   if (response.status === 429) {
     showBanner(phrase("rateLimited"));
-    return;
+    return false;
   }
   if (response.status === 503) {
     showBanner(phrase("tokenUnavailable", { symbol: token.symbol, network: token.networkName }));
-    return;
+    return false;
   }
   const body = (await response.json().catch(() => null)) as { fields?: FieldErrors } | null;
   if (response.status === 422 && body?.fields) {
     showErrors(body.fields, token);
-    return;
+    return false;
   }
   showBanner(phrase("requestFailed"));
+  return false;
 }
 
 form.addEventListener("input", (event) => {
   if (event.target instanceof HTMLInputElement && event.target.name === "tokenId") {
     showBanner("");
+  }
+  const field = FIELDS.find((name) => inputs[name] === event.target);
+  if (field) {
+    touched.add(field);
   }
   render();
 });
@@ -327,9 +337,9 @@ form.addEventListener("submit", (event) => {
   if (!token || sending) {
     return;
   }
-  attempted = true;
   const result = validate(token);
   if (!result.ok) {
+    FIELDS.forEach((field) => touched.add(field));
     showErrors(result.errors, token);
     const firstInvalid = FIELDS.find((field) => result.errors[field]);
     if (firstInvalid) {
@@ -339,13 +349,19 @@ form.addEventListener("submit", (event) => {
   }
   sending = true;
   donateButton.disabled = true;
-  submit(token)
+  donateButton.setAttribute("aria-busy", "true");
+  void submit(token)
     .catch(() => {
       showBanner(phrase("requestFailed"));
+      return false;
     })
-    .finally(() => {
+    .then((leaving) => {
+      if (leaving) {
+        return;
+      }
       sending = false;
-      donateButton.disabled = false;
+      donateButton.disabled = !validate(token).ok;
+      donateButton.removeAttribute("aria-busy");
     });
 });
 

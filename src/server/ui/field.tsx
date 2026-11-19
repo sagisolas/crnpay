@@ -17,9 +17,9 @@ export function Field({ id, label, hint, counter = false, children }: FieldProps
       {children}
       <div class="hint">
         <span id={`${id}-hint`}>{hint}</span>
+        <span class="error" id={`${id}-error`} />
         {counter && <span class="count" id={`${id}-count`} />}
       </div>
-      <div class="error" id={`${id}-error`} />
     </div>
   );
 }
