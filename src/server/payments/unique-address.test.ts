@@ -59,12 +59,12 @@ describe("Bitcoin Donation address", () => {
     expect(html).not.toContain(address(0));
   });
 
-  it("tells the Donor to send at least the minimum, with the amount in the QR", async () => {
+  it("tells the Donor to send at least the minimum, with no note under the QR", async () => {
     const { app } = setupApp({ tokens: [btc] });
     const donation = await donate(app);
     const html = await (await app.request(`/d/${donation.body.id}`)).text();
     expect(html).toContain("Send at least 0.0001 BTC on Bitcoin.");
-    expect(html).toContain("The code holds the address and the amount.");
+    expect(html).toMatch(/<p class="qr-note" id="pay-qr-note" hidden="">\s*<\/p>/);
     expect(html).not.toContain(">Send exactly");
   });
 

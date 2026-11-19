@@ -244,7 +244,9 @@ function showInstructions(instructions: PaymentInstructions, token: PageToken): 
   byId("pay-amount").textContent = `${instructions.amount} ${instructions.symbol}`;
   byId("pay-address").textContent = instructions.address;
   const hints = PAYMENT_HINTS[instructions.matching];
-  byId("pay-qr-note").textContent = phrase(hints.qrNote);
+  const qrNote = byId("pay-qr-note");
+  qrNote.textContent = hints.qrNote ? phrase(hints.qrNote) : "";
+  qrNote.hidden = !hints.qrNote;
   byId("pay-warning-title").textContent = phrase(hints.warningTitle, {
     network: instructions.networkName,
     minimum: `${instructions.minimum} ${instructions.symbol}`,

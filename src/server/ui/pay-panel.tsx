@@ -42,8 +42,8 @@ export function PayPanel({ testMode, view }: PayPanelProps) {
           <div class="qr">
             <img id="pay-qr" src={view?.qr} alt={view?.address ?? ""} />
           </div>
-          <p class="qr-note" id="pay-qr-note">
-            {t[hints.qrNote]}
+          <p class="qr-note" id="pay-qr-note" hidden={!hints.qrNote}>
+            {hints.qrNote && t[hints.qrNote]}
           </p>
         </div>
         <div>

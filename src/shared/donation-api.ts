@@ -9,11 +9,14 @@ export const PAYMENT_HINTS = {
     warningBody: "exactWarningBody",
   },
   uniqueAddress: {
-    qrNote: "qrWithAmount",
+    qrNote: null,
     warningTitle: "minimumWarningTitle",
     warningBody: "minimumWarningBody",
   },
-} as const satisfies Record<Matching, Record<string, keyof Dictionary>>;
+} as const satisfies Record<
+  Matching,
+  { qrNote: keyof Dictionary | null; warningTitle: keyof Dictionary; warningBody: keyof Dictionary }
+>;
 
 export interface PageToken {
   id: string;

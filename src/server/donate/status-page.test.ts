@@ -50,6 +50,14 @@ describe("GET /d/:id", () => {
     expect(preview).toMatch(/data-alert-symbol="true">BTC</);
   });
 
+  it("explains a QR code that carries the address only", async () => {
+    const { app } = setupApp();
+    const { id } = await create(app);
+    const html = await (await app.request(`/d/${id}`)).text();
+
+    expect(html).toContain("The code holds the address only. Enter the amount yourself.");
+  });
+
   it("embeds the Donation's instructions and status in the page data", async () => {
     const { app } = setupApp();
     const { id } = await create(app);

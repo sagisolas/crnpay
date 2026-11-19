@@ -34,7 +34,6 @@ export const en = {
   copyAddress: "Copy address",
   copied: "Copied",
   qrAddressOnly: "The code holds the address only. Enter the amount yourself.",
-  qrWithAmount: "The code holds the address and the amount.",
   exactWarningTitle: "Send exactly this amount on {network}.",
   exactWarningBody:
     "The last digits identify your donation, so any other amount or network can’t be matched.",
@@ -96,7 +95,6 @@ export const ru = {
   copyAddress: "Скопировать адрес",
   copied: "Скопировано",
   qrAddressOnly: "В коде только адрес. Сумму введите сами.",
-  qrWithAmount: "В коде адрес и сумма.",
   exactWarningTitle: "Отправьте ровно эту сумму в сети {network}.",
   exactWarningBody:
     "Последние цифры опознают ваш донат, поэтому другая сумма или сеть не совпадут.",
