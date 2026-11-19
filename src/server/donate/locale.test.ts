@@ -7,8 +7,8 @@ function get(app: App, path: string, headers: Record<string, string> = {}) {
   return app.request(path, { headers });
 }
 
-const RU_MARK = "Ваше сообщение появится на стриме";
-const EN_MARK = "Your message shows up on stream";
+const RU_MARK = "чтобы поддержать стримера";
+const EN_MARK = "amount to support streamer";
 
 describe("donation page language", () => {
   it("renders Russian when the browser prefers it", async () => {
@@ -95,7 +95,7 @@ describe("donation page language", () => {
     });
     const { id } = (await created.json()) as { id: string };
     const html = await (await get(app, `/d/${id}`, { cookie: "lang=ru" })).text();
-    expect(html).toContain("Ждём ваш платёж");
+    expect(html).toContain("Ожидаем платеж");
   });
 
   it("renders an EN/RU switch with the active language marked", async () => {

@@ -1,7 +1,7 @@
 export const en = {
   languageLabel: "Language",
   pageTitle: "Donate to {name}",
-  tagline: "Choose preferred cound and amount to support streamer",
+  tagline: "Choose preferred coin and amount to support streamer",
   payWith: "Pay with",
   amount: "Amount",
   minimum: "Minimum {amount}",

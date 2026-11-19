@@ -55,7 +55,9 @@ describe("GET /d/:id", () => {
     const { id } = await create(app);
     const html = await (await app.request(`/d/${id}`)).text();
 
-    expect(html).toContain("The code holds the address only. Enter the amount yourself.");
+    expect(html).toContain(
+      "The code holds the address only, you will need to enter the amount yourself.",
+    );
   });
 
   it("embeds the Donation's instructions and status in the page data", async () => {
