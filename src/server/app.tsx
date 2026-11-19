@@ -162,7 +162,7 @@ export function createApp({
       amount,
       minimum: formatAmount(token.minimum, token.decimals),
       matching: token.matching,
-      qr: await qrDataUrl(paymentUri(token, donation.address, amount)),
+      qr: await qrDataUrl(paymentUri(token, donation.address, amount), tokenIcon(token.symbol)),
       expiresAt: new Date(donation.expiresAt).toISOString(),
     };
   };

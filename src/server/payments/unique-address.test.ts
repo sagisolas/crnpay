@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ALERT_KEY, btc, postDonation, setupApp } from "../test-support/app.js";
 import { openEventStream } from "../test-support/sse.js";
+import { tokenIcon } from "../ui/icons.js";
 import { qrDataUrl } from "../ui/qr.js";
 
 const TICK = 15 * 1000;
@@ -41,7 +42,9 @@ describe("Bitcoin Donation address", () => {
     expect(first.status).toBe(201);
     expect(first.body).toMatchObject({ address: address(0), amount: "0.001" });
     expect(second.body).toMatchObject({ address: address(1), amount: "0.0025" });
-    expect(first.body.qr).toBe(await qrDataUrl(`bitcoin:${address(0)}?amount=0.001`));
+    expect(first.body.qr).toBe(
+      await qrDataUrl(`bitcoin:${address(0)}?amount=0.001`, tokenIcon("BTC")),
+    );
   });
 
   it("shows the Donation's own address on its status page", async () => {

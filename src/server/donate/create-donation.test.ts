@@ -36,6 +36,21 @@ describe("POST /api/donations", () => {
     expect(body.qr).toMatch(/^data:image\/svg\+xml;base64,/);
   });
 
+  it("puts the Token icon in the middle of the QR code when the Token has one", async () => {
+    const svgOf = async (tokens: unknown[], tokenId: string) => {
+      const { app } = setupApp({ tokens });
+      const response = await postDonation(app, { ...valid, tokenId });
+      const { qr } = (await response.json()) as Instructions;
+      return Buffer.from(qr.replace(/^data:image\/svg\+xml;base64,/, ""), "base64").toString();
+    };
+    const unknown = { ...usdtOnTron, id: "zzz", symbol: "ZZZNOPE" };
+
+    expect(await svgOf([usdtOnTron], "usdt-tron")).toMatch(
+      /<image href="data:image\/svg\+xml;base64,[^"]+" x="[\d.]+" y="[\d.]+"/,
+    );
+    expect(await svgOf([unknown], "zzz")).not.toContain("<image");
+  });
+
   it.each([
     [{ amount: "abc" }, { amount: "invalid" }],
     [{ amount: "" }, { amount: "invalid" }],
