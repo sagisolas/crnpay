@@ -63,11 +63,12 @@ describe("Alert event stream", () => {
     const page = await openAlerts(setup.app);
     expect(page.response.headers.get("content-type")).toContain("text/event-stream");
 
-    const amount = await confirmDonation(setup, { message: "Привет <b>!</b>", nickname: "fox" });
+    const paid = await confirmDonation(setup, { message: "Привет <b>!</b>", nickname: "fox" });
 
+    expect(paid).not.toBe("10");
     expect(await page.nextAlert()).toMatchObject({
       nickname: "fox",
-      amount,
+      amount: "10",
       symbol: "USDT",
       message: "Привет <b>!</b>",
     });

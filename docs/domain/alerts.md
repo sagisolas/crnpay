@@ -2,7 +2,7 @@
 
 - Every Confirmed Donation produces exactly one Alert. Nothing is shown before a Donation is Confirmed.
 - Alerts play one at a time, oldest first, for 8 seconds each, without sound.
-- An Alert shows the Nickname (or "Аноним"), the amount with its Token, and the message.
+- An Alert shows the Nickname (or "Аноним"), the amount with its Token, and the message. The amount is the one the Donor entered on the donation page, or the amount actually paid when less arrived.
 - The Alert page has no text of its own: everything on it comes from the Donation, except "Аноним" when there is no Nickname.
 - When the Alert page opens, it plays every Alert not yet shown, except those Confirmed more than 1 hour ago, which are never shown.
 - An Alert counts as shown once any open Alert page has displayed it.

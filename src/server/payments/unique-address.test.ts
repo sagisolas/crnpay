@@ -137,7 +137,7 @@ describe("Bitcoin Donation address", () => {
 });
 
 describe("Bitcoin Payment matching", () => {
-  it("Confirms on the first Payment of at least the minimum and alerts the amount that arrived", async () => {
+  it("Confirms on the first Payment of at least the minimum and alerts the declared amount", async () => {
     const setup = setupApp({ tokens: [btc] });
     const alerts = await openEventStream(setup.app, `/api/alerts/events?key=${ALERT_KEY}`);
     const donation = await donate(setup.app, "0.001");
@@ -149,16 +149,19 @@ describe("Bitcoin Payment matching", () => {
     pay(setup.chain, donation.body.address, 1_234_567n, "tx1", 2);
     await setup.advance(TICK);
     expect(await stateOf(setup.app, donation.body.id)).toBe("confirmed");
-    expect(await alerts.nextAlert()).toMatchObject({ amount: "0.01234567", symbol: "BTC" });
+    expect(await alerts.nextAlert()).toMatchObject({ amount: "0.001", symbol: "BTC" });
     await alerts.close();
   });
 
-  it("accepts a Payment smaller than the Donation amount when it meets the minimum", async () => {
+  it("accepts a Payment smaller than the Donation amount and alerts the amount that arrived", async () => {
     const { app, advance, chain } = setupApp({ tokens: [btc] });
+    const alerts = await openEventStream(app, `/api/alerts/events?key=${ALERT_KEY}`);
     const donation = await donate(app, "0.5");
     pay(chain, donation.body.address, MINIMUM, "tx1");
     await advance(TICK);
     expect(await stateOf(app, donation.body.id)).toBe("confirmed");
+    expect(await alerts.nextAlert()).toMatchObject({ amount: "0.0001", symbol: "BTC" });
+    await alerts.close();
   });
 
   it("ignores a transfer below the minimum but matches a later one that meets it", async () => {

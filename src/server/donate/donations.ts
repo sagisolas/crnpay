@@ -92,6 +92,7 @@ export function createDonations({
     const now = clock.now();
     return {
       ...fields,
+      declaredAmount: fields.amount,
       id: randomUUID(),
       tokenId: token.id,
       address,
@@ -113,7 +114,7 @@ export function createDonations({
         logger.warn({ tokenId: token.id }, "no free amount tail, donation refused");
         return null;
       }
-      const record = newRecord(token, { ...fields, amount: exact }, token.address);
+      const record = { ...newRecord(token, fields, token.address), amount: exact };
       insertDonation(db, record, "amount");
       return record;
     })();
@@ -328,6 +329,7 @@ export function createDonations({
           donationId: event.donation.id,
           tokenId: token.id,
           amount: formatAmount(event.donation.paidAmount ?? event.donation.amount, token.decimals),
+          declaredAmount: formatAmount(event.donation.declaredAmount, token.decimals),
           nickname: event.donation.nickname,
           message: event.donation.message,
         },

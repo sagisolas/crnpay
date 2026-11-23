@@ -7,6 +7,7 @@ export interface DonationRecord {
   id: string;
   tokenId: string;
   amount: bigint;
+  declaredAmount: bigint;
   address: string;
   message: string;
   nickname: string | null;
@@ -73,12 +74,15 @@ export function insertDonation(
   holdBy: "amount" | "address",
 ): void {
   db.prepare(
-    `INSERT INTO donations (id, token_id, amount, address, message, nickname, created_at, expires_at)
-     VALUES (@id, @tokenId, @amount, @address, @message, @nickname, @createdAt, @expiresAt)`,
+    `INSERT INTO donations
+       (id, token_id, amount, declared_amount, address, message, nickname, created_at, expires_at)
+     VALUES
+       (@id, @tokenId, @amount, @declaredAmount, @address, @message, @nickname, @createdAt, @expiresAt)`,
   ).run({
     id: donation.id,
     tokenId: donation.tokenId,
     amount: donation.amount.toString(),
+    declaredAmount: donation.declaredAmount.toString(),
     address: donation.address,
     message: donation.message,
     nickname: donation.nickname,
@@ -175,6 +179,7 @@ export interface DonationView {
   id: string;
   tokenId: string;
   amount: bigint;
+  declaredAmount: bigint;
   address: string;
   message: string;
   nickname: string | null;
@@ -184,15 +189,16 @@ export interface DonationView {
   paidAmount: bigint | null;
 }
 
-type DonationViewRow = Omit<DonationView, "amount" | "paidAmount"> & {
+type DonationViewRow = Omit<DonationView, "amount" | "declaredAmount" | "paidAmount"> & {
   amount: string;
+  declaredAmount: string;
   paidAmount: string | null;
 };
 
 export function findDonation(db: Db, id: string): DonationView | undefined {
   const row = db
     .prepare(
-      `SELECT d.id, d.token_id AS tokenId, d.amount, d.address, d.message, d.nickname,
+      `SELECT d.id, d.token_id AS tokenId, d.amount, d.declared_amount AS declaredAmount, d.address, d.message, d.nickname,
               d.expires_at AS expiresAt, d.confirmed_at AS confirmedAt,
               t.confirmations AS paymentConfirmations, t.amount AS paidAmount
        FROM donations d LEFT JOIN transfers t ON t.donation_id = d.id
@@ -203,6 +209,7 @@ export function findDonation(db: Db, id: string): DonationView | undefined {
     row && {
       ...row,
       amount: BigInt(row.amount),
+      declaredAmount: BigInt(row.declaredAmount),
       paidAmount: row.paidAmount === null ? null : BigInt(row.paidAmount),
     }
   );
@@ -305,14 +312,19 @@ export interface AlertRecord {
   message: string;
 }
 
-type AlertRow = Omit<AlertRecord, "amount"> & { amount: string };
+type AlertRow = Omit<AlertRecord, "amount"> & { declaredAmount: string; paidAmount: string };
 
-const ALERT_COLUMNS = `a.id, d.token_id AS tokenId, t.amount, d.nickname, d.message
+const ALERT_COLUMNS = `a.id, d.token_id AS tokenId, d.declared_amount AS declaredAmount,
+         t.amount AS paidAmount, d.nickname, d.message
   FROM alerts a
   JOIN donations d ON d.id = a.donation_id
   JOIN transfers t ON t.donation_id = d.id`;
 
-const toAlertRecord = (row: AlertRow): AlertRecord => ({ ...row, amount: BigInt(row.amount) });
+const toAlertRecord = ({ declaredAmount, paidAmount, ...row }: AlertRow): AlertRecord => {
+  const declared = BigInt(declaredAmount);
+  const paid = BigInt(paidAmount);
+  return { ...row, amount: paid < declared ? paid : declared };
+};
 
 export function findAlert(db: Db, id: string): AlertRecord | undefined {
   const row = db.prepare(`SELECT ${ALERT_COLUMNS} WHERE a.id = ?`).get(id) as AlertRow | undefined;

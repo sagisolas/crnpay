@@ -164,7 +164,13 @@ export function createApp({
 
   const buildInstructions = async (
     token: Token,
-    donation: { id: string; amount: bigint; address: string; expiresAt: number },
+    donation: {
+      id: string;
+      amount: bigint;
+      declaredAmount: bigint;
+      address: string;
+      expiresAt: number;
+    },
   ): Promise<PaymentInstructions> => {
     const amount = formatAmount(donation.amount, token.decimals);
     return {
@@ -173,6 +179,7 @@ export function createApp({
       networkName: token.networkName,
       address: donation.address,
       amount,
+      declaredAmount: formatAmount(donation.declaredAmount, token.decimals),
       minimum: formatAmount(token.minimum, token.decimals),
       matching: token.matching,
       qr: await qrDataUrl(paymentUri(token, donation.address, amount), tokenIcon(token)),

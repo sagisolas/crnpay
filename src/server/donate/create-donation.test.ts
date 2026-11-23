@@ -12,6 +12,7 @@ interface Instructions {
   id: string;
   address: string;
   amount: string;
+  declaredAmount: string;
   symbol: string;
   networkName: string;
   qr: string;
@@ -33,6 +34,7 @@ describe("POST /api/donations", () => {
     expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
     expect(body.amount).toMatch(/^10\.\d{1,4}$/);
     expect(body.amount).not.toBe("10");
+    expect(body.declaredAmount).toBe("10");
     expect(body.qr).toMatch(/^data:image\/svg\+xml;base64,/);
   });
 

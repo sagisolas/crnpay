@@ -260,7 +260,7 @@ function showInstructions(instructions: PaymentInstructions, token: PageToken): 
   const qr = byId("pay-qr") as HTMLImageElement;
   qr.src = instructions.qr;
   qr.alt = instructions.address;
-  preview.amount.textContent = instructions.amount;
+  preview.amount.textContent = instructions.declaredAmount;
   preview.symbol.textContent = instructions.symbol;
 
   for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {

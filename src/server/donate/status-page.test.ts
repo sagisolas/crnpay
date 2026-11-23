@@ -50,6 +50,17 @@ describe("GET /d/:id", () => {
     expect(preview).toMatch(/data-alert-symbol="true">BTC</);
   });
 
+  it("previews the Alert with the declared amount, not the exact amount to pay", async () => {
+    const { app } = setupApp();
+    const { id, amount } = await create(app);
+    const html = await (await app.request(`/d/${id}`)).text();
+
+    const preview = /<aside class="stage".*<\/aside>/s.exec(html)?.[0] ?? "";
+    expect(amount).not.toBe("10");
+    expect(preview).toMatch(/data-alert-amount="true">10</);
+    expect(html).toContain(amount);
+  });
+
   it("explains a QR code that carries the address only", async () => {
     const { app } = setupApp();
     const { id } = await create(app);

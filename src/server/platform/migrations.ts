@@ -4,6 +4,7 @@ export const migrations: readonly string[] = [
     id TEXT PRIMARY KEY,
     token_id TEXT NOT NULL,
     amount TEXT NOT NULL,
+    declared_amount TEXT NOT NULL,
     address TEXT NOT NULL,
     message TEXT NOT NULL,
     nickname TEXT,

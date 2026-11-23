@@ -46,7 +46,7 @@ The payment screen is not saved anywhere; closing it loses it.
 
 - **Shared address, unique amount**: only a transfer of exactly the expected amount matches. Anything more or less matches no Donation: the money stays with the Streamer and no Alert is shown.
 - A transfer is matched once, when the service first sees it. A transfer that matched nothing never matches a Donation created later.
-- **Unique address**: the first Payment of at least the Token's minimum confirms the Donation, and its Alert shows the amount that actually arrived. Smaller transfers and any later transfers to that address lead to no Alert.
+- **Unique address**: the first Payment of at least the Token's minimum confirms the Donation, whatever amount arrived; its Alert shows the amount the Donor entered, or the amount that arrived when it is smaller. Smaller transfers and any later transfers to that address lead to no Alert.
 - A transfer counts only once it is in a block. An unconfirmed transfer that is replaced or dropped never claims a Donation, so its replacement can still match.
 - When several transfers to one address are seen at once, the oldest is the first.
 - **Unique address reuse**: an address that never received anything is given to a new Donation once its old Donation is past the 24 h hold. An address that ever received funds is never reused. At most 20 unpaid addresses exist per Token, matching the gap limit wallets scan; beyond that the Token refuses new Donations with "try again later".

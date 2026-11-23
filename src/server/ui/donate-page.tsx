@@ -189,7 +189,7 @@ export function DonatePage({
             <p class="stage-caption">{t.previewCaption}</p>
             <AlertView
               nickname={ANONYMOUS}
-              amount={payView?.amount ?? selected?.minimum ?? ""}
+              amount={pay?.instructions.declaredAmount ?? selected?.minimum ?? ""}
               symbol={payView?.symbol ?? selected?.symbol ?? ""}
               message={t.messagePlaceholder}
               placeholder

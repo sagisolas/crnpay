@@ -40,6 +40,7 @@ export interface PaymentInstructions {
   networkName: string;
   address: string;
   amount: string;
+  declaredAmount: string;
   minimum: string;
   matching: Matching;
   qr: string;
