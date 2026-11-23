@@ -3,7 +3,7 @@ import { ALERT_KEY, postDonation, setupApp } from "../test-support/app.js";
 
 const TICK = 15 * 1000;
 const WRONG_KEY = "0".repeat(64);
-const testDonation = { tokenId: "test", amount: "1", message: "Проверка", nickname: "" };
+const testDonation = { tokenId: "test", amount: "1", message: "Проверка", nickname: "Тест" };
 
 async function createTestDonation(app: ReturnType<typeof setupApp>["app"]) {
   const response = await postDonation(app, testDonation, ALERT_KEY);

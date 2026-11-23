@@ -9,7 +9,6 @@ import {
   validateDonationInput,
   type FieldErrors,
 } from "../shared/donation-input.js";
-import { ANONYMOUS } from "../shared/alert.js";
 import {
   PAYMENT_HINTS,
   type DonatePageData,
@@ -74,6 +73,10 @@ function enteredAmount(token: PageToken): string | null {
   return typeof units === "bigint" ? formatAmount(units, token.decimals) : null;
 }
 
+function enteredNickname(): string {
+  return cleanText(inputs.nickname.value) || phrase("anonymous");
+}
+
 function errorText(field: keyof FieldErrors, code: string, token: PageToken): string {
   const messages: Record<string, string> = {
     "amount.invalid": phrase("amountInvalid"),
@@ -105,7 +108,7 @@ function showErrors(
 
 function validate(token: PageToken) {
   return validateDonationInput(
-    { amount: inputs.amount.value, message: inputs.message.value, nickname: inputs.nickname.value },
+    { amount: inputs.amount.value, message: inputs.message.value, nickname: enteredNickname() },
     { decimals: token.decimals, minimum: parseAmount(token.minimum, token.decimals) },
   );
 }
@@ -137,7 +140,7 @@ function render(): void {
     ? phrase("donateAmount", { amount: `${amount} ${token.symbol}` })
     : phrase("donate");
 
-  preview.nickname.textContent = nickname || ANONYMOUS;
+  preview.nickname.textContent = enteredNickname();
   preview.amount.textContent = amount ?? token.minimum;
   preview.symbol.textContent = token.symbol;
   preview.message.textContent = message || phrase("messagePlaceholder");
@@ -260,8 +263,11 @@ function showInstructions(instructions: PaymentInstructions, token: PageToken): 
   const qr = byId("pay-qr") as HTMLImageElement;
   qr.src = instructions.qr;
   qr.alt = instructions.address;
+  preview.nickname.textContent = instructions.nickname;
   preview.amount.textContent = instructions.declaredAmount;
   preview.symbol.textContent = instructions.symbol;
+  preview.message.textContent = instructions.message;
+  preview.message.classList.remove("is-empty");
 
   for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
     button.addEventListener("click", () => {
@@ -295,7 +301,7 @@ async function submit(token: PageToken): Promise<boolean> {
       tokenId: token.id,
       amount: normalizeAmount(inputs.amount.value),
       message: inputs.message.value,
-      nickname: inputs.nickname.value,
+      nickname: enteredNickname(),
     }),
   });
   if (response.status === 201) {

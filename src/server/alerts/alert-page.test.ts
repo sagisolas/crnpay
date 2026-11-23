@@ -14,7 +14,12 @@ async function payDonation(
   input: { message: string; nickname?: string },
   confirmations: number[] = [usdtOnTron.confirmations],
 ) {
-  const response = await postDonation(app, { tokenId: "usdt-tron", amount: "10", ...input });
+  const response = await postDonation(app, {
+    tokenId: "usdt-tron",
+    amount: "10",
+    nickname: "Аноним",
+    ...input,
+  });
   const { amount } = (await response.json()) as { amount: string };
   for (const count of confirmations) {
     chain.send("usdt-tron", {
@@ -72,14 +77,6 @@ describe("Alert event stream", () => {
       symbol: "USDT",
       message: "Привет <b>!</b>",
     });
-    await page.close();
-  });
-
-  it("sends no Nickname for an anonymous Donation", async () => {
-    const setup = setupApp();
-    const page = await openAlerts(setup.app);
-    await confirmDonation(setup, { message: "hi" });
-    expect((await page.nextAlert()).nickname).toBeNull();
     await page.close();
   });
 

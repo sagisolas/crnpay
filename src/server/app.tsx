@@ -35,7 +35,7 @@ const PING_INTERVAL_MS = 25 * 1000;
 const FORGET_INTERVAL_MS = 60 * 60 * 1000;
 const SAMPLE_ALERT: AlertEvent = {
   id: "sample",
-  nickname: null,
+  nickname: "Test",
   amount: "1",
   symbol: TEST_TOKEN.symbol,
   message: "Test Alert",
@@ -45,7 +45,7 @@ const createDonationBody = z.object({
   tokenId: z.string().max(64),
   amount: z.string().max(64),
   message: z.string().max(4000),
-  nickname: z.string().max(400).default(""),
+  nickname: z.string().max(400),
 });
 
 interface AppDeps {
@@ -168,6 +168,8 @@ export function createApp({
       id: string;
       amount: bigint;
       declaredAmount: bigint;
+      nickname: string;
+      message: string;
       address: string;
       expiresAt: number;
     },
@@ -180,6 +182,8 @@ export function createApp({
       address: donation.address,
       amount,
       declaredAmount: formatAmount(donation.declaredAmount, token.decimals),
+      nickname: donation.nickname,
+      message: donation.message,
       minimum: formatAmount(token.minimum, token.decimals),
       matching: token.matching,
       qr: await qrDataUrl(paymentUri(token, donation.address, amount), tokenIcon(token)),

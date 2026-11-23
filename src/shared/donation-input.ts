@@ -20,13 +20,13 @@ interface AmountRules {
 export interface FieldErrors {
   amount?: "invalid" | "too_many_decimals" | "below_minimum";
   message?: "required" | "too_long";
-  nickname?: "too_long";
+  nickname?: "required" | "too_long";
 }
 
 interface ValidDonationInput {
   amount: bigint;
   message: string;
-  nickname: string | null;
+  nickname: string;
 }
 
 type ValidationResult =
@@ -60,12 +60,14 @@ export function validateDonationInput(input: DonationInput, rules: AmountRules):
   } else if (textLength(message) > MESSAGE_MAX_LENGTH) {
     errors.message = "too_long";
   }
-  if (textLength(nickname) > NICKNAME_MAX_LENGTH) {
+  if (!nickname) {
+    errors.nickname = "required";
+  } else if (textLength(nickname) > NICKNAME_MAX_LENGTH) {
     errors.nickname = "too_long";
   }
 
   if (typeof amount === "string" || Object.keys(errors).length > 0) {
     return { ok: false, errors };
   }
-  return { ok: true, value: { amount, message, nickname: nickname || null } };
+  return { ok: true, value: { amount, message, nickname } };
 }

@@ -10,7 +10,20 @@ function get(app: App, path: string, headers: Record<string, string> = {}) {
 const RU_MARK = "чтобы поддержать стримера";
 const EN_MARK = "amount to support streamer";
 
+const previewNickname = (html: string) =>
+  /<aside class="stage".*?data-alert-nickname="true">([^<]*)</s.exec(html)?.[1];
+
 describe("donation page language", () => {
+  it.each([
+    ["ru", "Аноним"],
+    ["en", "Anonymous"],
+  ])("gives the %s page its own default Nickname", async (lang, nickname) => {
+    const { app } = setupApp();
+    const html = await (await get(app, `/?lang=${lang}`)).text();
+    expect(previewNickname(html)).toBe(nickname);
+    expect(html).toContain(`"anonymous":"${nickname}"`);
+  });
+
   it("renders Russian when the browser prefers it", async () => {
     const { app } = setupApp();
     const html = await (

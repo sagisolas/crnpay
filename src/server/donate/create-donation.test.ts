@@ -61,6 +61,8 @@ describe("POST /api/donations", () => {
     [{ message: "" }, { message: "required" }],
     [{ message: " \u0007\u202E " }, { message: "required" }],
     [{ message: "я".repeat(301) }, { message: "too_long" }],
+    [{ nickname: "" }, { nickname: "required" }],
+    [{ nickname: " \u0007\u202E " }, { nickname: "required" }],
     [{ nickname: "n".repeat(33) }, { nickname: "too_long" }],
   ])("refuses %j with %j", async (change, fields) => {
     const { app } = setupApp();
@@ -69,12 +71,13 @@ describe("POST /api/donations", () => {
     expect(await response.json()).toEqual({ error: "validation", fields });
   });
 
-  it("accepts limits measured in characters, a comma as decimal point, and no nickname", async () => {
+  it("accepts limits measured in characters and a comma as decimal point", async () => {
     const { app } = setupApp({ tailSteps: 1 });
     const response = await postDonation(app, {
       tokenId: "usdt-tron",
       amount: " 1,5 ",
       message: "🎙".repeat(300),
+      nickname: "🎙".repeat(32),
     });
     expect(response.status).toBe(201);
     expect(((await response.json()) as Instructions).amount).toBe("1.5001");
@@ -91,6 +94,7 @@ describe("POST /api/donations", () => {
     ["not json"],
     [JSON.stringify({ amount: "1" })],
     [JSON.stringify({ ...valid, amount: 10 })],
+    [JSON.stringify({ ...valid, nickname: undefined })],
   ])("refuses malformed body %s", async (body) => {
     const { app } = setupApp();
     const response = await app.request("/api/donations", {

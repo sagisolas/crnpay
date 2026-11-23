@@ -10,7 +10,7 @@ export interface DonationRecord {
   declaredAmount: bigint;
   address: string;
   message: string;
-  nickname: string | null;
+  nickname: string;
   createdAt: number;
   expiresAt: number;
   heldUntil: number;
@@ -182,7 +182,7 @@ export interface DonationView {
   declaredAmount: bigint;
   address: string;
   message: string;
-  nickname: string | null;
+  nickname: string;
   expiresAt: number;
   confirmedAt: number | null;
   paymentConfirmations: number | null;
@@ -308,7 +308,7 @@ export interface AlertRecord {
   id: string;
   tokenId: string;
   amount: bigint;
-  nickname: string | null;
+  nickname: string;
   message: string;
 }
 

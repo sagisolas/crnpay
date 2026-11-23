@@ -13,7 +13,7 @@ A viewer who sends a Donation.
 _Avoid_: payer, customer, user
 
 **Donation**:
-What a Donor submits on the donation page: a Token, an amount, a message and an optional Nickname. It exists before any money moves.
+What a Donor submits on the donation page: a Token, an amount, a message and a Nickname. It exists before any money moves.
 _Avoid_: order, invoice, tip
 
 **Token**:
@@ -21,7 +21,7 @@ One asset on one specific network that a Donor can pick; native coins such as ET
 _Avoid_: coin, currency, payment option
 
 **Nickname**:
-The optional name a Donor gives to be shown with their Donation.
+The name shown with a Donation. A Donor who leaves it empty gets "Anonymous" or "Аноним", by the language of the donation page.
 _Avoid_: username, display name
 
 **Payment instructions**:

@@ -7,7 +7,7 @@ export const migrations: readonly string[] = [
     declared_amount TEXT NOT NULL,
     address TEXT NOT NULL,
     message TEXT NOT NULL,
-    nickname TEXT,
+    nickname TEXT NOT NULL,
     created_at INTEGER NOT NULL,
     expires_at INTEGER NOT NULL,
     confirmed_at INTEGER

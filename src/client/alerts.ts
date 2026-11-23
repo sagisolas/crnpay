@@ -1,5 +1,5 @@
 import "./styles/alert-page.css";
-import { ANONYMOUS, type AlertEvent, type AlertPageData } from "../shared/alert.js";
+import type { AlertEvent, AlertPageData } from "../shared/alert.js";
 
 const SHOW_MS = 8000;
 const GAP_MS = 600;
@@ -34,7 +34,7 @@ const wait = (ms: number): Promise<void> =>
   });
 
 async function display(event: AlertEvent): Promise<void> {
-  fields.nickname.textContent = event.nickname || ANONYMOUS;
+  fields.nickname.textContent = event.nickname;
   fields.amount.textContent = event.amount;
   fields.symbol.textContent = event.symbol;
   fields.message.textContent = event.message;

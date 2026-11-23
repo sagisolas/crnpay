@@ -61,6 +61,16 @@ describe("GET /d/:id", () => {
     expect(html).toContain(amount);
   });
 
+  it("previews the Alert with the Donation's own Nickname and message", async () => {
+    const { app } = setupApp();
+    const { id } = await create(app);
+    const html = await (await app.request(`/d/${id}`)).text();
+
+    const preview = /<aside class="stage".*<\/aside>/s.exec(html)?.[0] ?? "";
+    expect(preview).toMatch(/data-alert-nickname="true">fox</);
+    expect(preview).toMatch(/class="alert-msg" data-alert-message="true">hi</);
+  });
+
   it("explains a QR code that carries the address only", async () => {
     const { app } = setupApp();
     const { id } = await create(app);

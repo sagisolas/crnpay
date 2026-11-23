@@ -41,6 +41,8 @@ export interface PaymentInstructions {
   address: string;
   amount: string;
   declaredAmount: string;
+  nickname: string;
+  message: string;
   minimum: string;
   matching: Matching;
   qr: string;

@@ -5,7 +5,8 @@
 - Donors choose from a fixed list of Tokens set by the Streamer. Only the exact asset on the exact network of a listed Token counts.
 - Amounts are entered and shown in the Token's own units. There is no fiat conversion.
 - Each Token has a minimum amount, and smaller Donations are refused.
-- A Donation carries a Token, an amount, a message and an optional Nickname. The message is 1–300 characters and the Nickname at most 32, both plain text, trimmed, with control characters removed.
+- A Donation carries a Token, an amount, a message and a Nickname. The message is 1–300 characters and the Nickname 1–32, both plain text, trimmed, with control characters removed.
+- The Nickname field is optional for the Donor: when it is left empty, the donation page fills in "Anonymous" in English or "Аноним" in Russian. The service itself refuses a Donation without a Nickname.
 - One Donor can create at most 5 Donations per 10 minutes, counted per IP address (ADR-0005).
 
 ## Donation page

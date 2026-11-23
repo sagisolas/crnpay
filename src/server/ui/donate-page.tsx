@@ -1,4 +1,3 @@
-import { ANONYMOUS } from "../../shared/alert.js";
 import type {
   DonatePageData,
   DonationStatus,
@@ -188,11 +187,11 @@ export function DonatePage({
             <span class="screen-live">{t.live}</span>
             <p class="stage-caption">{t.previewCaption}</p>
             <AlertView
-              nickname={ANONYMOUS}
+              nickname={pay?.instructions.nickname ?? t.anonymous}
               amount={pay?.instructions.declaredAmount ?? selected?.minimum ?? ""}
               symbol={payView?.symbol ?? selected?.symbol ?? ""}
-              message={t.messagePlaceholder}
-              placeholder
+              message={pay?.instructions.message ?? t.messagePlaceholder}
+              placeholder={!pay}
             />
           </div>
         </aside>
