@@ -17,6 +17,7 @@ function fromAcceptLanguage(header: string | undefined): Locale {
         .map((param) => /^q=(\d(?:\.\d+)?)$/.exec(param.trim()))
         .find((match) => match)?.[1];
       const primary = (tag.split("-")[0] ?? "").toLowerCase();
+      // eslint-disable-next-line no-restricted-syntax -- Accept-Language weight, not a token amount
       return { primary, q: quality ? Number(quality) : 1 };
     })
     .filter((entry) => entry.primary.length > 0 && entry.q > 0)

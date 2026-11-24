@@ -8,6 +8,7 @@ const toDataUrl = (svg: string): string =>
   `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 
 function withLogo(svg: string, icon: string): string {
+  // eslint-disable-next-line no-restricted-syntax -- QR canvas size, not a token amount
   const size = Number(/viewBox="0 0 (\d+) \d+"/.exec(svg)?.[1]);
   if (!size) {
     return svg;

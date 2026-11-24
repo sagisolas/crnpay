@@ -201,8 +201,10 @@ describe("createEvmAdapter", () => {
     const listCall = fetchFn.mock.calls.find(
       ([url]) => new URL(url as string).searchParams.get("action") === "txlist",
     );
-    expect(new URL(listCall![0] as string).searchParams.get("startblock")).toBe("100");
-    expect(new URL(listCall![0] as string).searchParams.get("chainid")).toBe("1");
+    expect(listCall).toBeDefined();
+    const params = new URL(String(listCall?.[0])).searchParams;
+    expect(params.get("startblock")).toBe("100");
+    expect(params.get("chainid")).toBe("1");
   });
 
   it("rejects a provider error without leaking the api key", async () => {

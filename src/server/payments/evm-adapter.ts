@@ -27,7 +27,7 @@ const realWait = (ms: number): Promise<void> =>
 const decimal = z.string().regex(/^\d+$/);
 
 const transferRow = z.object({
-  blockNumber: decimal,
+  blockNumber: decimal.transform(Number),
   hash: z.string().min(1),
   to: z.string(),
   value: decimal,
@@ -43,7 +43,12 @@ const listResponse = z.object({
   result: z.union([z.array(transferRow), z.string()]),
 });
 
-const blockNumberResponse = z.object({ result: z.string().regex(/^0x[0-9a-fA-F]+$/) });
+const blockNumberResponse = z.object({
+  result: z
+    .string()
+    .regex(/^0x[0-9a-fA-F]+$/)
+    .transform(Number),
+});
 
 const sameAddress = (a: string, b: string): boolean => a.toLowerCase() === b.toLowerCase();
 
@@ -97,7 +102,7 @@ export function createEvmAdapter({
     const body = blockNumberResponse.parse(
       await getJson(query(chainId, { module: "proxy", action: "eth_blockNumber" })),
     );
-    return Number(body.result);
+    return body.result;
   };
 
   const list = async (
@@ -170,7 +175,7 @@ export function createEvmAdapter({
         index,
         address: token.address,
         amount,
-        confirmations: Math.max(0, tip - Number(row.blockNumber) + 1),
+        confirmations: Math.max(0, tip - row.blockNumber + 1),
       });
     }
 
