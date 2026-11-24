@@ -33,13 +33,14 @@ import { watchToken } from "./payments/watcher.js";
 const MAX_BODY_BYTES = 16 * 1024;
 const PING_INTERVAL_MS = 25 * 1000;
 const FORGET_INTERVAL_MS = 60 * 60 * 1000;
-const SAMPLE_ALERT: AlertEvent = {
+const sampleAlert = (token: Token): AlertEvent => ({
   id: "sample",
+  icon: tokenIcon(token),
   nickname: "Test",
   amount: "1",
-  symbol: TEST_TOKEN.symbol,
+  symbol: token.symbol,
   message: "Test Alert",
-};
+});
 
 const createDonationBody = z.object({
   tokenId: z.string().max(64),
@@ -122,6 +123,7 @@ export function createApp({
   );
   const tokens = new Map<string, Token>([...donatableTokens, [TEST_TOKEN.id, TEST_TOKEN]]);
   const alerts = createAlerts({ db, clock, logger, tokens });
+  const sample = sampleAlert(donatableTokens.values().next().value ?? TEST_TOKEN);
   const donations = createDonations({
     db,
     clock,
@@ -272,7 +274,11 @@ export function createApp({
   app.use("/api/alerts/*", requireKey);
 
   app.get("/alerts", (c) =>
-    c.html(<AlertPage sample={c.req.query("test") === undefined ? null : SAMPLE_ALERT} />),
+    c.html(
+      <I18nProvider value={createI18n(resolveLocale(c))}>
+        <AlertPage sample={c.req.query("test") === undefined ? null : sample} />
+      </I18nProvider>,
+    ),
   );
 
   app.get("/api/alerts/events", (c) =>

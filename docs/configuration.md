@@ -185,12 +185,13 @@ The server refuses to start if:
 
 Once the instance is running, give the Streamer these links (replace the domain and key):
 
-| Link                                                     | Purpose                                                                                                        |
-| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `https://donate.example.com/`                            | Public donation page to share with Donors.                                                                     |
-| `https://donate.example.com/alerts?key=<ALERT_KEY>`      | Alert page, added to OBS as a browser source. Keep it private.                                                 |
-| `https://donate.example.com/alerts?key=<ALERT_KEY>&test` | Alert page with a sample Alert, to position and size it in OBS.                                                |
-| `https://donate.example.com/?key=<ALERT_KEY>`            | Donation page in test mode: adds a Test Token that pays without real money, to check the full flow end to end. |
+| Link                                                        | Purpose                                                                                                        |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `https://donate.example.com/`                               | Public donation page to share with Donors.                                                                     |
+| `https://donate.example.com/alerts?key=<ALERT_KEY>`         | Alert page, added to OBS as a browser source. Keep it private.                                                 |
+| `https://donate.example.com/alerts?key=<ALERT_KEY>&test`    | Alert page with a sample Alert, to position and size it in OBS.                                                |
+| `https://donate.example.com/alerts?key=<ALERT_KEY>&lang=ru` | Alert page with Russian wording. Without `lang` the wording follows the browser source language.               |
+| `https://donate.example.com/?key=<ALERT_KEY>`               | Donation page in test mode: adds a Test Token that pays without real money, to check the full flow end to end. |
 
 Test Donations are paid by a built-in test chain and only ever use the Test Token, so they never count as real Payments (ADR-0008).
 

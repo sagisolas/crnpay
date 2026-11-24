@@ -14,6 +14,12 @@ describe("tokenIcon", () => {
     expect(svg).toContain(`href="${String(plainTrx)}"`);
   });
 
+  it("keeps the badge inside the icon so it is not cut off", () => {
+    const svg = decode(tokenIcon({ symbol: "USDT", network: "tron" }));
+    expect(svg).toContain('<circle cx="24.5" cy="24.5" r="7.5"');
+    expect(svg).toContain('x="18" y="18" width="13" height="13"');
+  });
+
   it("tells the same token on different networks apart", () => {
     expect(tokenIcon({ symbol: "USDT", network: "tron" })).not.toBe(
       tokenIcon({ symbol: "USDT", network: "ethereum" }),

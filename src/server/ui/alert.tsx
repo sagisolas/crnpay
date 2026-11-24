@@ -1,5 +1,7 @@
 interface AlertViewProps {
+  icon: string | null;
   nickname: string;
+  sentLabel: string;
   amount: string;
   symbol: string;
   message: string;
@@ -7,7 +9,9 @@ interface AlertViewProps {
 }
 
 export function AlertView({
+  icon,
   nickname,
+  sentLabel,
   amount,
   symbol,
   message,
@@ -15,16 +19,16 @@ export function AlertView({
 }: AlertViewProps) {
   return (
     <div class="alert" data-alert>
-      <div class="alert-head">
-        <span class="alert-nick" data-alert-nickname>
+      <img class="alert-icon" src={icon ?? undefined} alt="" hidden={!icon} data-alert-icon />
+      <p class="alert-title">
+        <span class="alert-accent" data-alert-nickname>
           {nickname}
+        </span>{" "}
+        <span data-alert-sent>{sentLabel}</span>{" "}
+        <span class="alert-accent alert-amount">
+          <span data-alert-amount>{amount}</span> <span data-alert-symbol>{symbol}</span>
         </span>
-        <span class="alert-dash">—</span>
-        <span class="alert-amount">
-          <span data-alert-amount>{amount}</span>
-          <small data-alert-symbol>{symbol}</small>
-        </span>
-      </div>
+      </p>
       <div class={placeholder ? "alert-msg is-empty" : "alert-msg"} data-alert-message>
         {message}
       </div>

@@ -29,7 +29,13 @@ describe("GET /", () => {
   it("shows the Token logo when one exists", async () => {
     const unknown = { ...usdtOnTron, id: "zzz", symbol: "ZZZNOPE" };
     const { html } = await page({ tokens: [usdtOnTron, unknown] });
-    expect(html.match(/<img[^>]+src="data:image\/svg\+xml;base64,/g)).toHaveLength(1);
+    const chips = /<div class="chips">.*?<\/fieldset>/s.exec(html)?.[0] ?? "";
+    expect(chips.match(/<img[^>]+src="data:image\/svg\+xml;base64,/g)).toHaveLength(1);
+  });
+
+  it("shows the selected Token logo in the Alert preview", async () => {
+    const { html } = await page({ tokens: [usdtOnTron] });
+    expect(html).toMatch(/<img class="alert-icon" src="data:image\/svg\+xml;base64,[^"]+" alt=""/);
   });
 
   it("gives the page script the Token rules", async () => {

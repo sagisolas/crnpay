@@ -3,6 +3,7 @@ import { formatAmount } from "../../shared/amount.js";
 import type { AlertEvent } from "../../shared/alert.js";
 import type { Clock } from "../platform/clock.js";
 import type { Token } from "../platform/config.js";
+import { tokenIcon } from "../ui/icons.js";
 import {
   findAlert,
   markAlertShown,
@@ -37,6 +38,7 @@ export function createAlerts({ db, clock, logger, tokens }: AlertsDeps) {
     return [
       {
         id: record.id,
+        icon: tokenIcon(token),
         nickname: record.nickname,
         amount: formatAmount(record.amount, token.decimals),
         symbol: token.symbol,

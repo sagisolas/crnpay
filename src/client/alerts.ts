@@ -18,6 +18,7 @@ const keyParam = `key=${encodeURIComponent(new URLSearchParams(window.location.s
 const stage = query(".alert-stage");
 const alert = query("[data-alert]");
 const fields = {
+  icon: query("[data-alert-icon]") as HTMLImageElement,
   nickname: query("[data-alert-nickname]"),
   amount: query("[data-alert-amount]"),
   symbol: query("[data-alert-symbol]"),
@@ -33,7 +34,17 @@ const wait = (ms: number): Promise<void> =>
     setTimeout(resolve, ms);
   });
 
+function showIcon(image: HTMLImageElement, src: string | null): void {
+  image.hidden = !src;
+  if (src) {
+    image.src = src;
+  } else {
+    image.removeAttribute("src");
+  }
+}
+
 async function display(event: AlertEvent): Promise<void> {
+  showIcon(fields.icon, event.icon);
   fields.nickname.textContent = event.nickname;
   fields.amount.textContent = event.amount;
   fields.symbol.textContent = event.symbol;

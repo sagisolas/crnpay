@@ -94,6 +94,24 @@ describe("Alert event stream", () => {
 const markShown = (app: App["app"], id: string, key = ALERT_KEY) =>
   app.request(`/api/alerts/${id}/shown?key=${key}`, { method: "POST" });
 
+describe("Alert content", () => {
+  it("carries the Token logo so the Alert page needs no network", async () => {
+    const setup = setupApp();
+    const page = await openAlerts(setup.app);
+    await confirmDonation(setup, { message: "logo" });
+    expect((await page.nextAlert()).icon).toMatch(/^data:image\/svg\+xml;base64,/);
+    await page.close();
+  });
+
+  it("words the Alert title in the requested language", async () => {
+    const { app } = setupApp();
+    const ru = await app.request(`/alerts?key=${ALERT_KEY}&lang=ru`);
+    expect(await ru.text()).toContain('<span data-alert-sent="true">отправил</span>');
+    const en = await app.request(`/alerts?key=${ALERT_KEY}&lang=en`);
+    expect(await en.text()).toContain('<span data-alert-sent="true">sent</span>');
+  });
+});
+
 describe("Alert replay and acknowledgement", () => {
   it("replays unshown Alerts on connect, oldest first", async () => {
     const setup = setupApp();
@@ -188,6 +206,12 @@ describe("Test Alert", () => {
     const response = await app.request(`/alerts?key=${ALERT_KEY}&test`);
     expect(response.status).toBe(200);
     expect(await response.text()).toContain('"message":"Test Alert"');
+  });
+
+  it("gives the sample Alert a real Token logo so it can be sized in OBS", async () => {
+    const { app } = setupApp();
+    const response = await app.request(`/alerts?key=${ALERT_KEY}&test`);
+    expect(await response.text()).toMatch(/"icon":"data:image\/svg\+xml;base64,/);
   });
 
   it("shows no sample on the plain Alert page", async () => {

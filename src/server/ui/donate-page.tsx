@@ -44,6 +44,7 @@ export function DonatePage({
 }: DonatePageProps) {
   const { locale, strings: t, phrase } = useI18n();
   const selected = tokens.find((token) => token.id === rememberedTokenId) ?? tokens[0];
+  const previewToken = pay ? tokens.find((token) => token.id === pay.tokenId) : selected;
 
   const statusView = (status: DonationStatus, expiresAt: string): PayView["status"] => {
     switch (status.state) {
@@ -187,7 +188,9 @@ export function DonatePage({
             <span class="screen-live">{t.live}</span>
             <p class="stage-caption">{t.previewCaption}</p>
             <AlertView
+              icon={previewToken?.icon ?? null}
               nickname={pay?.instructions.nickname ?? t.anonymous}
+              sentLabel={t.alertSent}
               amount={pay?.instructions.declaredAmount ?? selected?.minimum ?? ""}
               symbol={payView?.symbol ?? selected?.symbol ?? ""}
               message={pay?.instructions.message ?? t.messagePlaceholder}

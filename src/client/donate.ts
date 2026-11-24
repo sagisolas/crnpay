@@ -53,6 +53,7 @@ const inputs = {
 const donateButton = byId("donate") as HTMLButtonElement;
 const formBanner = byId("form-banner");
 const preview = {
+  icon: query("[data-alert-icon]") as HTMLImageElement,
   nickname: query("[data-alert-nickname]"),
   amount: query("[data-alert-amount]"),
   symbol: query("[data-alert-symbol]"),
@@ -140,6 +141,13 @@ function render(): void {
     ? phrase("donateAmount", { amount: `${amount} ${token.symbol}` })
     : phrase("donate");
 
+  const icon = form.querySelector<HTMLImageElement>('input[name="tokenId"]:checked + span img');
+  preview.icon.hidden = !icon;
+  if (icon) {
+    preview.icon.src = icon.src;
+  } else {
+    preview.icon.removeAttribute("src");
+  }
   preview.nickname.textContent = enteredNickname();
   preview.amount.textContent = amount ?? token.minimum;
   preview.symbol.textContent = token.symbol;
