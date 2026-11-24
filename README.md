@@ -1,6 +1,6 @@
 # crnpay
 
-Self-hosted crypto donations for one Streamer. Donors pick a Token, enter an amount, a message and an optional Nickname, then pay straight into the Streamer's own wallet using the Payment instructions shown (QR code, address, exact amount). Once the Payment is Confirmed, an Alert appears on the Alert page, which the Streamer adds to OBS as a browser source.
+Self hosted crypto donations for streamers. Project aims to replicate traditional donation service functionality, but without additional fees for streamer. It is possible, because with crypto there is no payment processing logic, only watchers that use transaction data providers. Service includes main donate page, payment instructions page and real time alerts endpoint to embed into streaming software. 
 
 ## Screenshots
 
@@ -16,7 +16,7 @@ Payment page shows real time updates on transaction status
 
 ## Configuration
 
-You need to specify your wallet's public keys for selected tokens, the service never stores private keys.
+You need to specify your wallet's public keys for selected tokens. The service never stores private keys.
 
 [First setup](docs/configuration.md)
 
