@@ -6,13 +6,13 @@ Self-hosted crypto donations for one Streamer. Donors pick a Token, enter an amo
 
 ### Donate page
 
-<img src="docs/images/donate.webp" alt="Donate" width="400">
+<img src="docs/images/donate.webp" alt="Donate" width="700">
 
 ### Payment instructions
 
 Payment page shows real time updates on transaction status
 
-<img src="docs/images/instructions.webp" alt="Instructions" width="400">
+<img src="docs/images/instructions.webp" alt="Instructions" width="700">
 
 ## Configuration
 
