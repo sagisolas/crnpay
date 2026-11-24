@@ -141,7 +141,9 @@ function render(): void {
     ? phrase("donateAmount", { amount: `${amount} ${token.symbol}` })
     : phrase("donate");
 
-  const icon = form.querySelector<HTMLImageElement>('input[name="tokenId"]:checked + span img');
+  const icon = form.querySelector<HTMLImageElement>(
+    'input[name="tokenId"]:checked + span [data-chip-icon]',
+  );
   preview.icon.hidden = !icon;
   if (icon) {
     preview.icon.src = icon.src;

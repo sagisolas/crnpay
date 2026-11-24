@@ -37,7 +37,7 @@ const sampleAlert = (token: Token): AlertEvent => ({
   id: "sample",
   icon: tokenIcon(token),
   nickname: "Test",
-  amount: "1",
+  amount: formatAmount(token.minimum, token.decimals),
   symbol: token.symbol,
   message: "Test Alert",
 });

@@ -7,8 +7,8 @@ function get(app: App, path: string, headers: Record<string, string> = {}) {
   return app.request(path, { headers });
 }
 
-const RU_MARK = "чтобы поддержать стримера";
-const EN_MARK = "amount to support streamer";
+const RU_MARK = "появится на стриме";
+const EN_MARK = "shows up on stream";
 
 const previewNickname = (html: string) =>
   /<aside class="stage".*?data-alert-nickname="true">([^<]*)</s.exec(html)?.[1];

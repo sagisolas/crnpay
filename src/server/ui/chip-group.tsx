@@ -26,7 +26,9 @@ export function ChipGroup({ name, legend, options, selected }: ChipGroupProps) {
               checked={option.value === selected}
             />
             <span>
-              {option.icon && <img src={option.icon} alt="" width="20" height="20" />}
+              {option.icon && (
+                <img src={option.icon} alt="" width="20" height="20" data-chip-icon />
+              )}
               {option.label}
               <em>{option.detail}</em>
             </span>
