@@ -2,105 +2,104 @@
 
 Self-hosted crypto donations for one Streamer. Donors pick a Token, enter an amount, a message and an optional Nickname, then pay straight into the Streamer's own wallet using the Payment instructions shown (QR code, address, exact amount). Once the Payment is Confirmed, an Alert appears on the Alert page, which the Streamer adds to OBS as a browser source.
 
-The service never holds a private key: it knows only public addresses and extended public keys, and watches the chain for incoming Payments.
+## Screenshots
 
-- Vocabulary: [GLOSSARY.md](GLOSSARY.md)
-- Domain rules: [docs/domain/](docs/domain/)
-- Technical decisions: [docs/adr/](docs/adr/)
+### Donate page
 
-## Status
+<img src="docs/images/donate.webp" alt="Donate" width="400">
 
-Scaffold only. The server validates its environment and config and serves `/health`. The donation page, Alert page, storage, matching and chain adapters are not built yet.
+### Payment instructions
 
-## Tech stack
+Payment page shows real time updates on transaction status
 
-| Concern         | Choice                                                                               |
-| --------------- | ------------------------------------------------------------------------------------ |
-| Language        | TypeScript (strict) on Node.js 26                                                    |
-| HTTP and HTML   | [Hono](https://hono.dev) with server-rendered JSX, Server-Sent Events for Alerts     |
-| Validation      | [zod](https://zod.dev) for env, config, request bodies and provider responses        |
-| Storage         | SQLite through better-sqlite3 with plain SQL (planned)                               |
-| Logging         | [pino](https://getpino.io), JSON lines, secrets redacted, query strings never logged |
-| Browser scripts | Plain TypeScript bundled by esbuild                                                  |
-| Tests and lint  | Vitest, ESLint with typescript-eslint `strict-type-checked`                          |
-| Deployment      | One Docker container behind Caddy (automatic HTTPS)                                  |
+<img src="docs/images/instructions.webp" alt="Instructions" width="400">
 
-Token amounts are always `bigint` in the Token's base units. Decimal strings are converted with `parseAmount` in `src/server/amount.ts`, and lint rejects `parseFloat`, `parseInt` and `Number()`.
+## Configuration
 
-## Running locally
+You need to specify your wallet's public keys for selected tokens, the service never stores private keys.
 
-Requires Node.js 26 and pnpm 11.
+[First setup](docs/configuration.md)
+
+## Development
+
+### Layout
+
+```
+src/
+├── server/            the Node app
+│   ├── donate/        donate and payment pages
+│   ├── alerts/        OBS alert page and its event stream
+│   ├── payments/      one adapter per chain, plus the watcher that polls them
+│   ├── ui/            server-rendered components
+│   ├── platform/      config, env, logging, storage and scheduling
+│   └── test-support/  test helpers and fakes
+├── client/            browser scripts for the donate and alert pages
+│   └── styles/        their CSS
+└── shared/            code both sides use: amounts, validation, translations, API types
+docs/
+├── adr/               technical decisions
+└── domain/            donation and alert rules
+design/                HTML prototypes the pages are based on
+docker/                images and compose files
+```
+
+### Architecture
+
+It's one small server per Streamer. It never holds a key that can spend money: it only knows public addresses and extended public keys, and it watches the chain for incoming Payments ([ADR-0001](docs/adr/0001-single-streamer-non-custodial.md)).
+
+When a Donor submits the form, the server creates a Donation and works out how to recognise its Payment. On Bitcoin each Donation gets its own address, derived from the Streamer's zpub. On EVM chains and Tron everyone pays the same address, so each Donation gets its own exact amount instead ([ADR-0002](docs/adr/0002-matching-method-per-chain-family.md)).
+
+Every 15 seconds a watcher asks a hosted provider for new transfers on each chain, using mempool.space, Etherscan or TronGrid, so you don't need to run your own nodes ([ADR-0003](docs/adr/0003-hosted-chain-data-providers.md)). Once a Payment has enough confirmations, an Alert is saved and pushed over server-sent events to the open Alert page. That page plays Alerts one at a time and reports each one back once it's been shown, so an Alert missed while OBS was closed gets replayed when it reconnects.
+
+Pages are rendered on the server, with a little client script on top for the live preview and the payment status. State is kept in a single SQLite file. Rate limiting is left to the Caddy reverse proxy in front of the app ([ADR-0005](docs/adr/0005-rate-limit-at-proxy.md)).
+
+### Stack
+
+- **Runtime:** TypeScript on Node 26.
+- **Web framework:** [Hono](https://hono.dev) handles routing, server-sent events and page rendering with JSX.
+- **Storage:** SQLite through `better-sqlite3`, with plain SQL.
+- **Chain data:** hosted providers instead of our own nodes: mempool.space for Bitcoin, Etherscan for EVM chains, and TronGrid for Tron.
+- **QR codes:** `qrcode` draws the payment QR, with the token icon in the middle.
+- **Validation:** `zod` checks config and input.
+- **Logging:** `pino` writes the logs.
+- **Translations:** FormatJS (`intl-messageformat`) handles UI text in English and Russian.
+- **Crypto:** `@scure` and `@noble` libraries handle Bitcoin address derivation.
+- **Client:** plain TypeScript bundled by esbuild, with no framework.
+- **Tooling:** Vitest for tests, plus ESLint and Prettier.
+- **Deployment:** Docker, with a custom Caddy image that adds rate limiting.
+
+### Building
+
+You'll need Node 26 and pnpm. Install dependencies and create your env and config files:
 
 ```bash
 pnpm install
 cp .env.example .env
 ```
 
-Create a `config.json` with your streamer name and the Tokens you accept. You only list the Tokens you want (by `id`) and the fields specific to your deployment — the receiving `address` (or `zpub` for Bitcoin); everything else is inherited from `config.default.json`:
-
-```json
-{
-  "streamerName": "Your name",
-  "tokens": [
-    { "id": "eth", "address": "0xYourEthAddress" },
-    { "id": "usdt-tron", "address": "TYourTronAddress" },
-    { "id": "btc", "zpub": "zpub6r..." }
-  ]
-}
-```
-
-Set `ALERT_KEY` in `.env` to the output of `openssl rand -hex 32`, then:
+Fill in `.env` and write `config.json` as described in the [configuration guide](docs/configuration.md), then start the dev server:
 
 ```bash
 pnpm dev
 ```
 
-| Script           | What it does                                                                      |
-| ---------------- | --------------------------------------------------------------------------------- |
-| `pnpm dev`       | Runs the server with reload and pretty logs                                       |
-| `pnpm build`     | Compiles the server to `dist/server` and bundles browser scripts to `dist/public` |
-| `pnpm start`     | Runs the compiled server                                                          |
-| `pnpm test`      | Runs the tests (colocated as `*.test.ts`)                                         |
-| `pnpm lint`      | Runs ESLint                                                                       |
-| `pnpm typecheck` | Type-checks server and browser code                                               |
-| `pnpm format`    | Formats all files with Prettier (run before committing)                           |
+The server restarts itself when server code changes. Browser scripts and CSS are built only once, at startup, so after changing them run `pnpm build:client` and reload the page.
 
-## Configuration
-
-On shared-address chains (EVM, Tron) a Donation's expected amount is the entered amount plus a small uniqueness tail of up to 9999 steps of `amountTailStep`, so keep that step tiny: the largest tail a Donor can be asked for is `9999 × amountTailStep`, which should be worth at most a cent or two (e.g. `0.000001` for a 6-decimal stablecoin). A step that is too large visibly inflates the amount the Donor must send.
-
-Secrets and paths come from the environment (see `.env.example`). Tokens are defined in two layers: `config.default.json` (committed) is a catalog of known Tokens with sensible defaults, and your config at `CONFIG_PATH` overrides it. The two are deep-merged by Token `id`: only the Tokens your config lists are active, and each inherits any field it doesn't set (symbol, decimals, chain id, contract, confirmations, minimum, tail step) from the default of the same `id`. `streamerName` falls back to the default when your config omits it. Set `DEFAULT_CONFIG_PATH` to point the catalog elsewhere. The server refuses to start if the merged config is invalid.
-
-A Token entry looks like this:
-
-```json
-{
-  "id": "usdt-tron",
-  "symbol": "USDT",
-  "network": "tron",
-  "decimals": 6,
-  "minimum": "1",
-  "confirmations": 20,
-  "matching": "uniqueAmount",
-  "address": "T..."
-}
-```
-
-`matching` is `uniqueAmount` (shared `address`, unique amount per Donation) or `uniqueAddress` (per-Donation addresses derived from `zpub`). See ADR-0002.
-
-For Tron, set `address` to your Tron receiving address (`T...`). A Tron Token is a TRC-20 token identified by its `contract` (the catalog's `usdt-tron` already sets the USDT contract), and only transfers from that contract count. Tron Tokens need `TRONGRID_API_KEY`. See ADR-0010.
-
-For Bitcoin, set `zpub` to your wallet's account-level native SegWit (BIP84) extended public key. Each Donation gets its own receive address; a never-paid address is reused after its 24 h hold, and every address is checked unused on mempool.space before it is handed out. Never put a `zprv` here, the server refuses it.
-
-## Deployment
-
-The Docker setup lives in `docker/`. Run it from there:
+Before committing, run the checks:
 
 ```bash
-cd docker
-DOMAIN=donate.example.com docker compose up -d --build
+pnpm test
+pnpm typecheck
+pnpm lint
+pnpm format
 ```
 
-`docker/compose.yaml` runs the app with a read-only filesystem, mounts `config.json` read-only (ADR-0004), keeps SQLite in the `data` volume and puts Caddy in front for HTTPS.
+To run the full production setup locally, with the app and Caddy built from source:
 
-Caddy also rate limits Donation creation: `POST /api/donations` is capped at 5 requests per client IP per 10 minutes, and over that Caddy answers 429 and the donation page shows a "try again later" message. All other routes are unlimited. The limit lives in Caddy, not the app (ADR-0005), so it needs the custom image built from `docker/Caddy.Dockerfile`, which adds the [`caddy-ratelimit`](https://github.com/mholt/caddy-ratelimit) plugin to stock Caddy. The `docker compose up --build` above builds it automatically. Running the app without this Caddy setup means running it without a rate limit.
+```bash
+docker compose -f docker/compose.yaml -f docker/compose.local.yaml up --build
+```
+
+## License
+
+[MPL 2.0](LICENSE)
