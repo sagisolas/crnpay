@@ -1,6 +1,6 @@
 # crnpay
 
-Self hosted crypto donations for streamers. Project aims to replicate traditional donation service functionality, but without additional fees for streamer. It is possible, because with crypto there is no payment processing logic, only watchers that use transaction data providers. Service includes main donate page, payment instructions page and real time alerts endpoint to embed into streaming software. 
+Self hosted crypto donations for streamers. Project aims to replicate traditional donation service functionality, but without additional fees for streamer. It is possible, because with crypto there is no payment processing logic, only watchers that use transaction data providers. Service includes main donate page, payment instructions page and real time alerts endpoint to embed into streaming software.
 
 ## Screenshots
 
