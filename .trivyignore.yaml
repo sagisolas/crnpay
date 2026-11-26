@@ -1,0 +1,9 @@
+# Reviewed vulnerabilities accepted for the Docker images scanned in CI.
+# Every entry needs a statement and an expiry date; once it expires the build fails again.
+#
+# vulnerabilities:
+#   - id: CVE-2026-12345
+#     statement: Affects busybox wget only; app never shells out. Reviewed by <name>.
+#     expired_at: 2027-03-01
+
+vulnerabilities: []
