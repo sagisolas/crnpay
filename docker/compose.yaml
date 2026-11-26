@@ -1,9 +1,12 @@
 services:
   app:
-    image: crnpay:latest
+    container_name: crnpay
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: host.docker.internal:5000/crnpay:latest
     restart: unless-stopped
-    env_file:
-      - ../.env
+    env_file: ${APP_ENV_FILE:-../.env}
     environment:
       CONFIG_PATH: /config/config.json
       DB_PATH: /data/crnpay.db
@@ -15,7 +18,12 @@ services:
       - /tmp
 
   caddy:
-    image: caddy_ratelimit:latest
+    container_name: caddy_crnpay
+    image: host.docker.internal:5000/caddy_crnpay:latest
+    env_file: ${APP_ENV_FILE:-../.env}
+    build:
+      context: ..
+      dockerfile: docker/Caddy.Dockerfile
     restart: unless-stopped
     ports:
       - "80:80"
