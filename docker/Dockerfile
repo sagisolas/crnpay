@@ -21,7 +21,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json config.default.json ./
-RUN mkdir -p /data && chown node:node /data
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx \
+    && mkdir -p /data && chown node:node /data
 USER node
 VOLUME /data
 EXPOSE 3000
