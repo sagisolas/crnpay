@@ -1,8 +1,23 @@
 {
-  "name": "crnpay",
+  "name": "@sagisolas/crnpay",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
+  "repository": "github:sagisolas/crnpay",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "dist",
+    "config.default.json"
+  ],
+  "exports": {
+    "./config": "./dist/server/platform/config.js",
+    "./env": "./dist/server/platform/env.js",
+    "./ui/*": "./dist/server/ui/*.js",
+    "./shared/*": "./dist/shared/*.js",
+    "./public/*": "./dist/public/*",
+    "./config.default.json": "./config.default.json"
+  },
   "engines": {
     "node": ">=26"
   },
